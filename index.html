@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datini Letters — Geospatial Explorer (c. 1363–1412)</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #0d0d18;
+      color: #e8dfc8;
+      height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 340px;
+      flex-shrink: 0;
+      background: rgba(10, 10, 22, 0.97);
+      border-right: 1px solid #3a3060;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    #sidebar-header {
+      background: linear-gradient(135deg, #2a1a5e, #1a0a3e);
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid #4a3a80;
+    }
+
+    #sidebar-header h1 {
+      font-size: 1.1rem;
+      color: #f0d060;
+      letter-spacing: 0.03em;
+      line-height: 1.3;
+    }
+
+    #sidebar-header p {
+      font-size: 0.72rem;
+      color: #a090c0;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    #sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 20px;
+    }
+
+    /* ── Sections ── */
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8070b0;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #2a2040;
+    }
+
+    /* ── Mode buttons ── */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .mode-btn {
+      padding: 8px 10px;
+      background: #1a1430;
+      border: 1px solid #3a2a60;
+      border-radius: 6px;
+      color: #c0b0e0;
+      font-size: 0.76rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .mode-btn:hover { background: #2a2050; border-color: #6050a0; }
+    .mode-btn.active {
+      background: #3a2070;
+      border-color: #a080e0;
+      color: #f0e080;
+    }
+
+    .mode-btn .icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+
+    /* ── Sliders ── */
+    .slider-row {
+      margin-bottom: 10px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: #b0a0d0;
+      margin-bottom: 4px;
+    }
+
+    .slider-label span { color: #f0d060; font-weight: bold; }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #8060d0;
+      cursor: pointer;
+    }
+
+    /* ── Info Panel ── */
+    #info-panel {
+      background: #12102a;
+      border: 1px solid #3a2a60;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 60px;
+      font-size: 0.78rem;
+      color: #c0b0e0;
+      line-height: 1.5;
+    }
+
+    #info-panel h3 {
+      color: #f0d060;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    #info-panel .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      border-bottom: 1px solid #2a2040;
+    }
+
+    #info-panel .stat-row:last-child { border-bottom: none; }
+    #info-panel .stat-val { color: #f0d060; }
+
+    .hint {
+      font-size: 0.7rem;
+      color: #6050a0;
+      font-style: italic;
+      text-align: center;
+      padding: 4px 0;
+    }
+
+    /* ── Legend ── */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 0.74rem;
+      color: #b0a0d0;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-line {
+      width: 28px;
+      height: 3px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .legend-gradient {
+      width: 100%;
+      height: 10px;
+      border-radius: 4px;
+      margin: 4px 0 2px;
+    }
+
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: #8070a0;
+    }
+
+    /* ── Stats bar ── */
+    #stats-bar {
+      padding: 8px 14px;
+      background: #0a0818;
+      border-top: 1px solid #2a2040;
+      font-size: 0.7rem;
+      color: #6050a0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #stats-bar span { color: #f0d060; }
+
+    /* ── Map ── */
+    #map {
+      flex: 1;
+      position: relative;
+    }
+
+    /* ── Loading overlay ── */
+    #loading {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 22, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+
+    #loading.hidden { opacity: 0; }
+
+    .loader-ring {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #2a2040;
+      border-top-color: #f0d060;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading p {
+      margin-top: 12px;
+      color: #a090c0;
+      font-size: 0.85rem;
+    }
+
+    /* ── Map tooltip ── */
+    .maplibregl-popup-content {
+      background: rgba(10, 10, 30, 0.97) !important;
+      border: 1px solid #4a3a80 !important;
+      color: #e0d0f0 !important;
+      font-family: 'Georgia', serif !important;
+      font-size: 0.8rem !important;
+      border-radius: 8px !important;
+      padding: 10px 12px !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.7) !important;
+      max-width: 260px !important;
+    }
+
+    .maplibregl-popup-tip { border-top-color: #4a3a80 !important; }
+    .maplibregl-popup-close-button { color: #8070b0 !important; font-size: 1rem !important; }
+
+    .popup-title { color: #f0d060; font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; }
+    .popup-row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; border-bottom: 1px solid #2a2040; }
+    .popup-row:last-child { border-bottom: none; }
+    .popup-val { color: #f0d060; }
+    .popup-sub { font-size: 0.72rem; color: #8070b0; margin-top: 6px; font-style: italic; line-height: 1.4; }
+
+    /* ── Map attribution ── */
+    .maplibregl-ctrl-attrib { font-size: 0.6rem !important; }
+
+    /* ── Scrollbar ── */
+    #sidebar-body::-webkit-scrollbar { width: 4px; }
+    #sidebar-body::-webkit-scrollbar-track { background: transparent; }
+    #sidebar-body::-webkit-scrollbar-thumb { background: #3a2a60; border-radius: 2px; }
+
+    .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: bold;
+      vertical-align: middle;
+    }
+    .badge-fondaco { background: #3a2070; color: #c0a0ff; }
+    .badge-city    { background: #1a2050; color: #80a0ff; }
+
+    /* ── Month picker ── */
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+    }
+
+    .month-btn {
+      padding: 4px 2px;
+      background: #1a1430;
+      border: 1px solid #3a2a60;
+      border-radius: 4px;
+      color: #a090d0;
+      font-size: 0.65rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .month-btn:hover  { background: #2a2050; border-color: #6050a0; }
+    .month-btn.active {
+      background: #3a2070;
+      border-color: #a080e0;
+      color: #f0e080;
+      font-weight: bold;
+    }
+
+    /* ── Sparkline chart in popup / info panel ── */
+    .sparkline-wrap {
+      margin-top: 8px;
+    }
+
+    .sparkline-wrap svg text { font-family: 'Georgia', serif; }
+  </style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─────────────────────────────────────────── -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <h1>🗺 Datini Letters<br>Geospatial Explorer</h1>
+    <p>Francesco di Marco Datini's merchant correspondence network<br>c. 1363–1412 &nbsp;·&nbsp; 145,417 letters &nbsp;·&nbsp; 285 cities</p>
+  </div>
+
+  <div id="sidebar-body">
+
+    <!-- Visualisation Mode -->
+    <div class="section">
+      <div class="section-title">Visualisation Mode</div>
+      <div class="mode-grid">
+        <button class="mode-btn active" data-mode="volume" onclick="setMode('volume')">
+          <span class="icon">📨</span>Letter Volume
+        </button>
+        <button class="mode-btn" data-mode="traveltime" onclick="setMode('traveltime')">
+          <span class="icon">⏱</span>Travel Time
+        </button>
+        <button class="mode-btn" data-mode="cities" onclick="setMode('cities')">
+          <span class="icon">🏛</span>City Activity
+        </button>
+        <button class="mode-btn" data-mode="temporal" onclick="setMode('temporal')">
+          <span class="icon">📅</span>Timeline
+        </button>
+        <button class="mode-btn" data-mode="seasonal" onclick="setMode('seasonal')" style="grid-column:1/-1;">
+          <span class="icon">🌿</span>Seasonal Travel Time
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="section" id="filter-section">
+      <div class="section-title">Filters</div>
+
+      <div class="slider-row" id="year-filter" style="display:none;">
+        <div class="slider-label">Year <span id="year-val">1390</span></div>
+        <input type="range" id="year-slider" min="1368" max="1412" value="1390" step="1"
+               oninput="onYearChange(this.value)" />
+      </div>
+
+      <div id="month-filter" style="display:none;">
+        <div class="slider-label" style="margin-bottom:6px;">Month <span id="month-name-label">January</span></div>
+        <div class="month-grid" id="month-grid"></div>
+        <div style="margin-top:8px;font-size:0.68rem;color:#6050a0;font-style:italic;">
+          Grey arcs = no data for this month on that route
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Min letters per route <span id="min-letters-val">50</span></div>
+        <input type="range" id="min-letters" min="1" max="2000" value="50" step="1"
+               oninput="onMinLettersChange(this.value)" />
+      </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="section">
+      <div class="section-title">Selected Feature</div>
+      <div id="info-panel">
+        <p class="hint">Click a route or city on the map</p>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="section" id="legend-section">
+      <div class="section-title">Legend</div>
+      <div id="legend-volume">
+        <div class="legend-item">
+          <div class="legend-line" style="background:#f0d060;height:1px;"></div>
+          <span>1–50 letters</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:#f0d060;height:3px;"></div>
+          <span>50–500 letters</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:#f0d060;height:6px;"></div>
+          <span>500–5,000 letters</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:#f0d060;height:10px;"></div>
+          <span>5,000+ letters</span>
+        </div>
+        <div class="legend-item" style="margin-top:8px;">
+          <div class="legend-swatch" style="background:#e060a0;"></div>
+          <span>Fondaco (main office)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#60a0e0;"></div>
+          <span>Correspondent city</span>
+        </div>
+      </div>
+
+      <div id="legend-traveltime" style="display:none;">
+        <div class="legend-gradient"
+             style="background: linear-gradient(to right, #00c8ff, #40e080, #f0d060, #ff6030, #cc2060);">
+        </div>
+        <div class="legend-labels">
+          <span>0 days</span><span>7 days</span><span>14 days</span><span>30+</span>
+        </div>
+        <div class="hint" style="margin-top:6px;">Route color = avg delivery time</div>
+      </div>
+
+      <div id="legend-cities" style="display:none;">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#e060a0; width:20px; height:20px;"></div>
+          <span>Fondaco (main office) — circle = letters conserved</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#60a0e0; width:14px; height:14px;"></div>
+          <span>Correspondent city — circle = total volume</span>
+        </div>
+      </div>
+
+      <div id="legend-temporal" style="display:none;">
+        <div class="hint">Circles = letters sent from each city in selected year</div>
+        <div class="legend-item" style="margin-top:8px;">
+          <div class="legend-swatch" style="background:#f0d060;"></div>
+          <span>Letter origin activity</span>
+        </div>
+      </div>
+
+      <div id="legend-seasonal" style="display:none;">
+        <div class="legend-gradient"
+             style="background: linear-gradient(to right, #00c8ff, #40e080, #f0d060, #ff6030, #cc2060);">
+        </div>
+        <div class="legend-labels">
+          <span>0 days</span><span>7</span><span>14</span><span>30+</span>
+        </div>
+        <div class="hint" style="margin-top:5px;">Arc colour = avg travel time in selected month</div>
+        <div class="hint">Arc width = letters timed that month</div>
+        <div class="legend-item" style="margin-top:7px;">
+          <div class="legend-line" style="background:#404060; height:2px; width:28px;"></div>
+          <span>No data for this month</span>
+        </div>
+        <div style="margin-top:10px;font-size:0.68rem;color:#8070a0;line-height:1.5;">
+          Click any arc to see the full 12-month travel time chart for that route.
+        </div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="section">
+      <div class="section-title">About</div>
+      <p style="font-size:0.73rem; color:#8070a0; line-height:1.6;">
+        Data: Franklin-Lyons &amp; Oleinikov (2025). <em>Datini Letter Collection Metadata.</em>
+        Digital Philology 14(2): 384–391.<br><br>
+        145,417 letters from the Archivio di Stato di Prato spanning the Mediterranean
+        trade network of the Datini company, geocoded to 285 cities.
+      </p>
+    </div>
+
+  </div>
+
+  <div id="stats-bar">
+    <div>Routes shown: <span id="stat-routes">—</span></div>
+    <div>Cities: <span id="stat-cities">—</span></div>
+    <div>Letters: <span id="stat-letters">—</span></div>
+  </div>
+</div>
+
+<!-- ─── MAP ─────────────────────────────────────────────── -->
+<div id="map">
+  <div id="loading">
+    <div class="loader-ring"></div>
+    <p>Loading Datini correspondence data…</p>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let currentMode = 'volume';
+let minLetters  = 50;
+let currentYear = 1390;
+let currentMonth = 1;
+let routesData   = null;
+let citiesData   = null;
+let timelineData = null;
+let topSendersData  = null;
+let seasonalData    = null;
+let map;
+
+// ═══════════════════════════════════════════════════════════════
+//  MAP INIT
+// ═══════════════════════════════════════════════════════════════
+map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  center: [10, 42],
+  zoom: 4.5,
+  minZoom: 2,
+  maxZoom: 12,
+  attributionControl: { compact: true }
+});
+
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-right');
+
+// ═══════════════════════════════════════════════════════════════
+//  LOAD DATA
+// ═══════════════════════════════════════════════════════════════
+async function loadData() {
+  const [r, c, t, s, sea] = await Promise.all([
+    fetch('data/processed/routes.geojson').then(r => r.json()),
+    fetch('data/processed/cities.geojson').then(r => r.json()),
+    fetch('data/processed/timeline.json').then(r => r.json()),
+    fetch('data/processed/top_senders.json').then(r => r.json()),
+    fetch('data/processed/seasonal_travel.json').then(r => r.json()),
+  ]);
+  routesData     = r;
+  citiesData     = c;
+  timelineData   = t;
+  topSendersData = s;
+  seasonalData   = sea;
+  buildMonthPicker();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ARC CURVE GENERATOR  (midpoint offset for a nice arc)
+// ═══════════════════════════════════════════════════════════════
+function curvedLine(lng1, lat1, lng2, lat2, steps = 40) {
+  const coords = [];
+  const mlng = (lng1 + lng2) / 2;
+  const mlat = (lat1 + lat2) / 2;
+  // Perpendicular offset proportional to distance
+  const dx = lng2 - lng1;
+  const dy = lat2 - lat1;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const perpX = -dy / dist * dist * 0.18;
+  const perpY =  dx / dist * dist * 0.18;
+  const cx = mlng + perpX;
+  const cy = mlat + perpY;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const mt = 1 - t;
+    // Quadratic Bezier
+    const lng = mt * mt * lng1 + 2 * mt * t * cx + t * t * lng2;
+    const lat = mt * mt * lat1 + 2 * mt * t * cy + t * t * lat2;
+    coords.push([lng, lat]);
+  }
+  return coords;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BUILD SEASONAL ARC GEOJSON  (one arc per route, colored by month)
+// ═══════════════════════════════════════════════════════════════
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function buildSeasonalArcGeoJSON(month) {
+  const features = Object.values(seasonalData).map(route => {
+    const mData = route.months[String(month)];
+    const coords = curvedLine(route.origin_lng, route.origin_lat, route.dest_lng, route.dest_lat);
+    return {
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: coords },
+      properties: {
+        origin:          route.origin,
+        origin_en:       route.origin_en,
+        destination:     route.destination,
+        destination_en:  route.destination_en,
+        origin_lng:      route.origin_lng,
+        origin_lat:      route.origin_lat,
+        dest_lng:        route.dest_lng,
+        dest_lat:        route.dest_lat,
+        total_n:         route.total_n,
+        overall_avg:     route.overall_avg,
+        has_month:       mData ? true : false,
+        month_avg:       mData ? mData.avg    : null,
+        month_median:    mData ? mData.median : null,
+        month_min:       mData ? mData.min    : null,
+        month_max:       mData ? mData.max    : null,
+        month_n:         mData ? mData.n      : 0,
+        month_p25:       mData ? mData.p25    : null,
+        month_p75:       mData ? mData.p75    : null,
+        // pack full monthly data as JSON string for popup use
+        months_json:     JSON.stringify(route.months),
+      }
+    };
+  });
+  return { type: 'FeatureCollection', features };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TRAVEL-TIME COLOUR  (shared by travel and seasonal modes)
+// ═══════════════════════════════════════════════════════════════
+function travelColor(days) {
+  if (days == null) return '#404060';
+  const stops = [[0,'#00c8ff'],[5,'#40e080'],[14,'#f0d060'],[30,'#ff6030'],[60,'#cc2060']];
+  for (let i = 1; i < stops.length; i++) {
+    if (days <= stops[i][0]) {
+      const t = (days - stops[i-1][0]) / (stops[i][0] - stops[i-1][0]);
+      return lerpColor(stops[i-1][1], stops[i][1], t);
+    }
+  }
+  return '#cc2060';
+}
+
+function lerpColor(a, b, t) {
+  const ah = parseInt(a.slice(1),16), bh = parseInt(b.slice(1),16);
+  const ar = ah>>16, ag = (ah>>8)&0xff, ab = ah&0xff;
+  const br = bh>>16, bg = (bh>>8)&0xff, bb = bh&0xff;
+  const r = Math.round(ar + (br-ar)*t);
+  const g = Math.round(ag + (bg-ag)*t);
+  const bl2 = Math.round(ab + (bb-ab)*t);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${bl2.toString(16).padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPARKLINE SVG — 12-month bar chart
+// ═══════════════════════════════════════════════════════════════
+function buildSparklineSVG(monthsObj, highlightMonth, width = 290, height = 70) {
+  const vals = MONTH_NAMES.map((_, i) => monthsObj[String(i+1)]);
+  const maxVal = Math.max(...vals.filter(Boolean).map(v => v.avg), 1);
+  const barW = Math.floor((width - 2) / 12);
+  const gap  = 1;
+  const chartH = height - 16;
+
+  let bars = '';
+  vals.forEach((v, i) => {
+    const x = i * barW + gap;
+    if (!v) {
+      bars += `<rect x="${x}" y="2" width="${barW-gap}" height="${chartH}" fill="#1a1830" rx="1"/>`;
+    } else {
+      const bh   = Math.max(2, Math.round((v.avg / maxVal) * chartH));
+      const y    = 2 + chartH - bh;
+      const col  = travelColor(v.avg);
+      const isHl = (i + 1) === highlightMonth;
+      bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${bh}"
+               fill="${col}" opacity="${isHl ? 1 : 0.6}" rx="1"
+               stroke="${isHl ? '#fff' : 'none'}" stroke-width="${isHl ? 0.8 : 0}"/>`;
+      // n label for highlighted bar
+      if (isHl) {
+        bars += `<text x="${x + (barW-gap)/2}" y="${y - 3}" text-anchor="middle"
+                 fill="#fff" font-size="7" opacity="0.9">n=${v.n}</text>`;
+      }
+    }
+    // month label
+    const midX = x + (barW-gap)/2;
+    const labelCol = (i+1) === highlightMonth ? '#f0e080' : '#5a4a80';
+    bars += `<text x="${midX}" y="${height - 2}" text-anchor="middle"
+             fill="${labelCol}" font-size="7">${MONTH_SHORT[i]}</text>`;
+  });
+
+  // Y-axis reference lines at 0 and max
+  const maxLabel = `${Math.round(maxVal)}d`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"
+               style="display:block;overflow:visible;">
+    <rect width="${width}" height="${height-14}" y="2" fill="#0e0c20" rx="3"/>
+    <text x="2" y="10" fill="#4a3a70" font-size="7">${maxLabel}</text>
+    ${bars}
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MONTH PICKER
+// ═══════════════════════════════════════════════════════════════
+function buildMonthPicker() {
+  const grid = document.getElementById('month-grid');
+  grid.innerHTML = MONTH_SHORT.map((m, i) =>
+    `<button class="month-btn${i+1===currentMonth?' active':''}" data-month="${i+1}"
+       onclick="setMonth(${i+1})">${m}</button>`
+  ).join('');
+}
+
+function setMonth(m) {
+  currentMonth = m;
+  document.getElementById('month-name-label').textContent = MONTH_NAMES[m-1];
+  document.querySelectorAll('.month-btn').forEach(b =>
+    b.classList.toggle('active', +b.dataset.month === m));
+  if (map.getSource('seasonal-src')) {
+    map.getSource('seasonal-src').setData(buildSeasonalArcGeoJSON(m));
+  }
+}
+function buildArcGeoJSON(minCount) {
+  const features = routesData.features
+    .filter(f => f.properties.letter_count >= minCount)
+    .map(f => {
+      const p = f.properties;
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: curvedLine(p.origin_lng, p.origin_lat, p.dest_lng, p.dest_lat)
+        },
+        properties: p
+      };
+    });
+  return { type: 'FeatureCollection', features };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TEMPORAL GEOJSON (city bubbles for a given year)
+// ═══════════════════════════════════════════════════════════════
+function buildTemporalCities(year) {
+  const yearData = timelineData[String(year)] || {};
+  // Start from city coords lookup
+  const cityLookup = {};
+  citiesData.features.forEach(f => {
+    cityLookup[f.properties.name_datini] = f;
+  });
+  const features = Object.entries(yearData)
+    .filter(([name]) => cityLookup[name])
+    .map(([name, count]) => {
+      const base = cityLookup[name];
+      return {
+        type: 'Feature',
+        geometry: base.geometry,
+        properties: { ...base.properties, year_count: count }
+      };
+    });
+  return { type: 'FeatureCollection', features };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADD / UPDATE SOURCES
+// ═══════════════════════════════════════════════════════════════
+function ensureSource(id, data) {
+  if (map.getSource(id)) {
+    map.getSource(id).setData(data);
+  } else {
+    map.addSource(id, { type: 'geojson', data });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LAYER HELPERS
+// ═══════════════════════════════════════════════════════════════
+function removeLayer(id) {
+  if (map.getLayer(id)) map.removeLayer(id);
+}
+
+function showAllLayers(which) {
+  const allLayers = ['arcs-volume', 'arcs-travel', 'cities-bubbles', 'cities-labels',
+                     'temporal-circles', 'temporal-labels'];
+  allLayers.forEach(id => {
+    if (map.getLayer(id)) {
+      map.setLayoutProperty(id, 'visibility', which.includes(id) ? 'visible' : 'none');
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DRAW LAYERS
+// ═══════════════════════════════════════════════════════════════
+function drawLayers() {
+  // ── Sources ──────────────────────────────────────────────────
+  const arcGeo = buildArcGeoJSON(minLetters);
+  ensureSource('arcs', arcGeo);
+  ensureSource('cities-src', citiesData);
+  ensureSource('temporal-src', buildTemporalCities(currentYear));
+  ensureSource('seasonal-src', buildSeasonalArcGeoJSON(currentMonth));
+
+  // ── ARC VOLUME layer ─────────────────────────────────────────
+  if (!map.getLayer('arcs-volume')) {
+    map.addLayer({
+      id: 'arcs-volume',
+      type: 'line',
+      source: 'arcs',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': '#f0c040',
+        'line-opacity': ['interpolate', ['linear'], ['get', 'letter_count'],
+          1, 0.25,  100, 0.5,  1000, 0.75,  10000, 0.95],
+        'line-width': ['interpolate', ['linear'], ['get', 'letter_count'],
+          1, 0.5,  50, 1.2,  500, 2.5,  5000, 5,  20000, 9],
+        'line-blur': ['interpolate', ['linear'], ['get', 'letter_count'],
+          1, 1.5,  5000, 0.5]
+      }
+    });
+  }
+
+  // ── ARC TRAVEL TIME layer ────────────────────────────────────
+  if (!map.getLayer('arcs-travel')) {
+    map.addLayer({
+      id: 'arcs-travel',
+      type: 'line',
+      source: 'arcs',
+      filter: ['!=', ['get', 'avg_travel_days'], null],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': ['interpolate', ['linear'], ['coalesce', ['get', 'avg_travel_days'], 0],
+          0,  '#00c8ff',
+          5,  '#40e080',
+          14, '#f0d060',
+          30, '#ff6030',
+          60, '#cc2060'
+        ],
+        'line-opacity': 0.75,
+        'line-width': ['interpolate', ['linear'], ['get', 'letter_count'],
+          1, 0.8,  500, 2.5,  5000, 5,  20000, 8]
+      }
+    });
+  }
+
+  // ── ARC SEASONAL layer ───────────────────────────────────────
+  if (!map.getLayer('arcs-seasonal')) {
+    map.addLayer({
+      id: 'arcs-seasonal',
+      type: 'line',
+      source: 'seasonal-src',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': ['case',
+          ['get', 'has_month'],
+          ['interpolate', ['linear'], ['coalesce', ['get', 'month_avg'], 0],
+            0,  '#00c8ff',
+            5,  '#40e080',
+            14, '#f0d060',
+            30, '#ff6030',
+            60, '#cc2060'
+          ],
+          '#2a2850'   // no data this month — dark grey
+        ],
+        'line-opacity': ['case', ['get', 'has_month'], 0.85, 0.25],
+        'line-width': ['case',
+          ['get', 'has_month'],
+          ['interpolate', ['linear'], ['coalesce', ['get', 'month_n'], 0],
+            0, 0.5,  50, 1.5,  200, 3,  800, 5.5,  2000, 8],
+          0.8
+        ],
+        'line-blur': ['case', ['get', 'has_month'], 0.3, 1]
+      }
+    });
+  }
+
+  // ── CITY BUBBLES ─────────────────────────────────────────────
+  if (!map.getLayer('cities-bubbles')) {
+    map.addLayer({
+      id: 'cities-bubbles',
+      type: 'circle',
+      source: 'cities-src',
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['get', 'letters_total'],
+          0, 3,  1000, 5,  10000, 9,  50000, 14,  100000, 20],
+        'circle-color': ['case',
+          ['get', 'is_fondaco'], '#e060a0',
+          '#60a0e0'
+        ],
+        'circle-opacity': 0.85,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': ['case',
+          ['get', 'is_fondaco'], '#ff80c0',
+          '#8080ff'
+        ]
+      }
+    });
+  }
+
+  // ── CITY LABELS ──────────────────────────────────────────────
+  if (!map.getLayer('cities-labels')) {
+    map.addLayer({
+      id: 'cities-labels',
+      type: 'symbol',
+      source: 'cities-src',
+      filter: ['>=', ['get', 'letters_total'], 5000],
+      layout: {
+        'text-field': ['get', 'name_english'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.2],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: {
+        'text-color': '#e8dfc8',
+        'text-halo-color': '#0a0818',
+        'text-halo-width': 1.5,
+        'text-opacity': 0.9
+      }
+    });
+  }
+
+  // ── TEMPORAL CIRCLES ─────────────────────────────────────────
+  if (!map.getLayer('temporal-circles')) {
+    map.addLayer({
+      id: 'temporal-circles',
+      type: 'circle',
+      source: 'temporal-src',
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['get', 'year_count'],
+          0, 3,  100, 6,  500, 10,  2000, 16,  5000, 22],
+        'circle-color': '#f0d060',
+        'circle-opacity': 0.8,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-opacity': 0.5
+      }
+    });
+  }
+
+  if (!map.getLayer('temporal-labels')) {
+    map.addLayer({
+      id: 'temporal-labels',
+      type: 'symbol',
+      source: 'temporal-src',
+      filter: ['>=', ['get', 'year_count'], 200],
+      layout: {
+        'text-field': ['concat', ['get', 'name_english'], '\n', ['to-string', ['get', 'year_count']]],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 10,
+        'text-offset': [0, 1.4],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: {
+        'text-color': '#f0d060',
+        'text-halo-color': '#0a0818',
+        'text-halo-width': 1.5,
+        'text-opacity': 0.9
+      }
+    });
+  }
+
+  applyMode(currentMode);
+  updateStats(arcGeo);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  APPLY MODE VISIBILITY
+// ═══════════════════════════════════════════════════════════════
+function applyMode(mode) {
+  if (!map.getLayer('arcs-volume')) return;
+
+  const vis = id => v => map.setLayoutProperty(id, 'visibility', v ? 'visible' : 'none');
+
+  vis('arcs-volume')     (mode === 'volume');
+  vis('arcs-travel')     (mode === 'traveltime');
+  vis('arcs-seasonal')   (mode === 'seasonal');
+  vis('cities-bubbles')  (mode === 'volume' || mode === 'traveltime' || mode === 'cities');
+  vis('cities-labels')   (mode === 'volume' || mode === 'traveltime' || mode === 'cities');
+  vis('temporal-circles')(mode === 'temporal');
+  vis('temporal-labels') (mode === 'temporal');
+
+  // Legends
+  document.getElementById('legend-volume')    .style.display = mode === 'volume'     ? '' : 'none';
+  document.getElementById('legend-traveltime').style.display = mode === 'traveltime' ? '' : 'none';
+  document.getElementById('legend-cities')    .style.display = mode === 'cities'     ? '' : 'none';
+  document.getElementById('legend-temporal')  .style.display = mode === 'temporal'   ? '' : 'none';
+  document.getElementById('legend-seasonal')  .style.display = mode === 'seasonal'   ? '' : 'none';
+
+  // Filter controls
+  document.getElementById('year-filter') .style.display = mode === 'temporal' ? '' : 'none';
+  document.getElementById('month-filter').style.display = mode === 'seasonal'  ? '' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATS BAR
+// ═══════════════════════════════════════════════════════════════
+function updateStats(arcGeo) {
+  const nRoutes  = arcGeo.features.length;
+  const nCities  = citiesData.features.filter(f => f.properties.letters_total > 0).length;
+  const nLetters = routesData.features
+    .filter(f => f.properties.letter_count >= minLetters)
+    .reduce((s, f) => s + f.properties.letter_count, 0);
+  document.getElementById('stat-routes').textContent  = nRoutes.toLocaleString();
+  document.getElementById('stat-cities').textContent  = nCities.toLocaleString();
+  document.getElementById('stat-letters').textContent = nLetters.toLocaleString();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  POPUPS
+// ═══════════════════════════════════════════════════════════════
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '280px' });
+
+function showCityPopup(e) {
+  const p = e.features[0].properties;
+  const senders = topSendersData[p.name_datini] || [];
+  const sendersHtml = senders.length
+    ? '<b style="color:#8070b0;font-size:0.7rem;">TOP SENDERS</b><br>' +
+      senders.map(s => `${s.name} (${s.count.toLocaleString()})`).join('<br>')
+    : '';
+
+  const badge = p.is_fondaco
+    ? '<span class="badge badge-fondaco">FONDACO</span>'
+    : '<span class="badge badge-city">CITY</span>';
+
+  const html = `
+    <div class="popup-title">${p.name_english} ${badge}</div>
+    <div class="popup-row"><span>Letters sent</span><span class="popup-val">${p.letters_sent.toLocaleString()}</span></div>
+    <div class="popup-row"><span>Letters received</span><span class="popup-val">${p.letters_received.toLocaleString()}</span></div>
+    <div class="popup-row"><span>Country</span><span class="popup-val">${p.country}</span></div>
+    <div class="popup-row"><span>Active years</span><span class="popup-val">${p.year_first || '?'} – ${p.year_last || '?'}</span></div>
+    ${p.notes ? `<div class="popup-sub">📝 ${p.notes}</div>` : ''}
+    ${sendersHtml ? `<div class="popup-sub">${sendersHtml}</div>` : ''}
+  `;
+
+  updateInfoPanel(p.name_english, [
+    ['Letters sent', p.letters_sent.toLocaleString()],
+    ['Letters received', p.letters_received.toLocaleString()],
+    ['Country', p.country],
+    ['Active', `${p.year_first} – ${p.year_last}`],
+  ]);
+
+  popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+}
+
+function showRoutePopup(e) {
+  const p = e.features[0].properties;
+  const travelStr = p.avg_travel_days != null
+    ? `${p.avg_travel_days} days avg (${p.min_travel_days}–${p.max_travel_days})`
+    : 'No data';
+
+  const html = `
+    <div class="popup-title">${p.origin_en} → ${p.destination_en}</div>
+    <div class="popup-row"><span>Letters</span><span class="popup-val">${p.letter_count.toLocaleString()}</span></div>
+    <div class="popup-row"><span>Travel time</span><span class="popup-val">${travelStr}</span></div>
+    <div class="popup-row"><span>Timed letters</span><span class="popup-val">${p.n_with_travel_time.toLocaleString()}</span></div>
+    <div class="popup-row"><span>Years active</span><span class="popup-val">${p.year_min || '?'} – ${p.year_max || '?'}</span></div>
+    <div class="popup-sub">Datini names: ${p.origin} → ${p.destination}</div>
+  `;
+
+  updateInfoPanel(`${p.origin_en} → ${p.destination_en}`, [
+    ['Letters', p.letter_count.toLocaleString()],
+    ['Avg travel time', p.avg_travel_days != null ? `${p.avg_travel_days} days` : 'N/A'],
+    ['Min / Max', p.avg_travel_days != null ? `${p.min_travel_days} / ${p.max_travel_days} days` : 'N/A'],
+    ['Years', `${p.year_min || '?'} – ${p.year_max || '?'}`],
+  ]);
+
+  popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+}
+
+function updateInfoPanel(title, rows) {
+  const panel = document.getElementById('info-panel');
+  panel.innerHTML = `<h3>${title}</h3>` +
+    rows.map(([k, v]) => `<div class="stat-row"><span>${k}</span><span class="stat-val">${v}</span></div>`).join('');
+}
+
+function showSeasonalRoutePopup(e) {
+  const p = e.features[0].properties;
+  const months = JSON.parse(p.months_json);
+  const mData  = months[String(currentMonth)];
+  const monthStr = mData
+    ? `${mData.avg} days avg &nbsp;·&nbsp; n = ${mData.n} &nbsp;·&nbsp; range ${mData.min}–${mData.max}`
+    : 'No data for this month';
+
+  const svgStr = buildSparklineSVG(months, currentMonth, 250, 70);
+
+  const html = `
+    <div class="popup-title">${p.origin_en} → ${p.destination_en}</div>
+    <div class="popup-row"><span>${MONTH_NAMES[currentMonth-1]}</span>
+      <span class="popup-val">${mData ? mData.avg + ' days' : '—'}</span></div>
+    <div class="popup-row"><span>Overall avg</span>
+      <span class="popup-val">${p.overall_avg} days</span></div>
+    <div class="popup-row"><span>Total timed letters</span>
+      <span class="popup-val">${(+p.total_n).toLocaleString()}</span></div>
+    <div class="popup-sub" style="margin-top:6px;">${monthStr}</div>
+    <div class="sparkline-wrap">${svgStr}</div>
+    <div class="popup-sub">Each bar = avg travel days by month of departure</div>
+  `;
+
+  // Info panel: seasonal breakdown table + sparkline
+  const panel = document.getElementById('info-panel');
+  const rows = [1,2,3,4,5,6,7,8,9,10,11,12].map(m => {
+    const d = months[String(m)];
+    return `<div class="stat-row">
+      <span>${MONTH_SHORT[m-1]}</span>
+      <span class="stat-val" style="color:${d ? travelColor(d.avg) : '#3a2a60'}">
+        ${d ? `${d.avg}d (n=${d.n})` : '—'}
+      </span></div>`;
+  }).join('');
+  panel.innerHTML = `<h3>${p.origin_en} → ${p.destination_en}</h3>
+    <div style="font-size:0.7rem;color:#8070a0;margin-bottom:6px;">Avg travel time by month of departure</div>
+    ${rows}
+    <div class="sparkline-wrap" style="margin-top:10px;">${buildSparklineSVG(months, currentMonth, 285, 70)}</div>`;
+
+  popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CURSORS & CLICK EVENTS
+// ═══════════════════════════════════════════════════════════════
+function setupInteractions() {
+  // Click handlers — cities first (higher priority)
+  ['cities-bubbles', 'temporal-circles'].forEach(layer => {
+    map.on('click', layer, e => {
+      e.preventDefault();
+      showCityPopup(e);
+    });
+    map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'pointer');
+    map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
+  });
+
+  ['arcs-volume', 'arcs-travel'].forEach(layer => {
+    map.on('click', layer, e => {
+      if (e.defaultPrevented) return;
+      showRoutePopup(e);
+    });
+    map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'crosshair');
+    map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
+  });
+
+  map.on('click', 'arcs-seasonal', e => {
+    if (e.defaultPrevented) return;
+    showSeasonalRoutePopup(e);
+  });
+  map.on('mouseenter', 'arcs-seasonal', () => map.getCanvas().style.cursor = 'crosshair');
+  map.on('mouseleave', 'arcs-seasonal', () => map.getCanvas().style.cursor = '');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════════════════════
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  applyMode(mode);
+}
+
+function onMinLettersChange(val) {
+  minLetters = parseInt(val, 10);
+  document.getElementById('min-letters-val').textContent = minLetters;
+  if (map.getSource('arcs')) {
+    const arcGeo = buildArcGeoJSON(minLetters);
+    map.getSource('arcs').setData(arcGeo);
+    updateStats(arcGeo);
+  }
+}
+
+function onYearChange(val) {
+  currentYear = parseInt(val, 10);
+  document.getElementById('year-val').textContent = currentYear;
+  if (map.getSource('temporal-src')) {
+    map.getSource('temporal-src').setData(buildTemporalCities(currentYear));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+map.on('load', async () => {
+  await loadData();
+  drawLayers();
+  setupInteractions();
+  const loading = document.getElementById('loading');
+  loading.classList.add('hidden');
+  setTimeout(() => loading.style.display = 'none', 600);
+});
+</script>
+</body>
+</html>
+

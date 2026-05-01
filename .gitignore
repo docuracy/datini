@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Raw Datini source data — large files not needed for the GitHub Pages web app
+data/datini-osfstorage-archive.zip
+data/datini.pdf
+data/extracted/
+
