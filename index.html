@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Datini Letters — Geospatial Explorer (c. 1363–1412)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='10' fill='%231a0a3e'/><rect x='10' y='18' width='44' height='30' rx='3' fill='%23f0d060' stroke='%232a1a5e' stroke-width='2'/><path d='M10 20 L32 38 L54 20' fill='none' stroke='%232a1a5e' stroke-width='3' stroke-linejoin='round'/></svg>" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <style>
@@ -315,6 +316,63 @@
       font-weight: bold;
     }
 
+    /* ── Share & Export buttons ── */
+    .share-btn {
+      width: 100%;
+      padding: 7px 10px;
+      background: #1a1430;
+      border: 1px solid #3a2a60;
+      border-radius: 6px;
+      color: #c0b0e0;
+      font-size: 0.74rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      font-family: inherit;
+      margin-bottom: 5px;
+    }
+    .share-btn:hover { background: #2a2050; border-color: #6050a0; color: #f0e080; }
+    .share-btn:disabled { opacity: 0.5; cursor: default; }
+    .share-hint {
+      font-size: 0.68rem;
+      color: #6f5f9a;
+      line-height: 1.5;
+      margin: 4px 2px 0;
+      font-style: italic;
+    }
+    .share-feedback {
+      font-size: 0.7rem;
+      color: #80d090;
+      min-height: 14px;
+      text-align: center;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .focus-banner {
+      background: #2a1a4e;
+      border: 1px solid #6050a0;
+      border-radius: 5px;
+      padding: 6px 8px;
+      font-size: 0.72rem;
+      color: #d0c0f0;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .focus-banner button {
+      background: transparent;
+      border: 1px solid #6050a0;
+      border-radius: 3px;
+      color: #d0c0f0;
+      font-family: inherit;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    .focus-banner button:hover { background: #3a2a70; }
+
     /* ── Sparkline chart in popup / info panel ── */
     .sparkline-wrap {
       margin-top: 8px;
@@ -467,6 +525,14 @@
       </div>
     </div>
 
+    <!-- Share -->
+    <div class="section">
+      <div class="section-title">Share this view</div>
+      <button class="share-btn" onclick="copyShareLink()">🔗 &nbsp;Copy link to current view</button>
+      <div class="share-hint">Captures mode, filters, map position, focus and any open popup — anyone opening the link sees exactly what you see now.</div>
+      <div id="share-feedback" class="share-feedback"></div>
+    </div>
+
     <!-- About -->
     <div class="section">
       <div class="section-title">About</div>
@@ -478,6 +544,10 @@
         Dataset:
         <a href="https://osf.io/mt25a/overview" target="_blank"
            style="color:#a080e0;">OSF · Datini Correspondence Metadata Project</a><br><br>
+        Letter editions:
+        <a href="http://datini.archiviodistato.prato.it/la-ricerca/le-edizioni-delle-lettere"
+           target="_blank" rel="noopener"
+           style="color:#a080e0;">Archivio di Stato di Prato · Le edizioni delle lettere</a><br><br>
         145,417 letters from the Archivio di Stato di Prato spanning the Mediterranean
         trade network of the Datini company, geocoded to 285 cities.
       </p>
@@ -485,6 +555,10 @@
 
   </div>
 
+  <div id="focus-banner" class="focus-banner" style="display:none; margin: 0 14px;">
+    <span>Focus: <span id="focus-name">—</span></span>
+    <button onclick="clearCityFocus()">× Clear</button>
+  </div>
   <div id="stats-bar">
     <div>Routes shown: <span id="stat-routes">—</span></div>
     <div>Cities: <span id="stat-cities">—</span></div>
@@ -516,13 +590,94 @@ let seasonalData    = null;
 let map;
 
 // ═══════════════════════════════════════════════════════════════
+//  HASH URL STATE  (shareable view)
+//  Format: #mode=seasonal&min=50&year=1390&month=3&map=10.00,42.00,4.50
+// ═══════════════════════════════════════════════════════════════
+const VALID_MODES = ['volume', 'traveltime', 'cities', 'temporal', 'seasonal'];
+let suppressHashWrite = false;
+// Currently open popup, mirrored into the URL hash for shareable links.
+//   { kind: 'city',     name: <name_datini> }
+//   { kind: 'route',    from: <origin_datini>, to: <destination_datini> }
+//   { kind: 'seasonal', from: <origin_datini>, to: <destination_datini> }
+let openSelection = null;
+let focusedCity = null;
+function setOpenSelection(sel) { openSelection = sel; writeHash(); }
+function setFocusedCity(name) {
+  if (focusedCity === name) return;
+  focusedCity = name;
+  applyCityFocus();
+  writeHash();
+}
+
+function parseHash() {
+  const h = window.location.hash.replace(/^#/, '');
+  const out = {};
+  if (!h) return out;
+  h.split('&').forEach(part => {
+    const eq = part.indexOf('=');
+    if (eq < 0) return;
+    out[part.slice(0, eq)] = decodeURIComponent(part.slice(eq + 1));
+  });
+  return out;
+}
+
+let lastWrittenHash = '';
+function writeHash() {
+  if (suppressHashWrite || !map) return;
+  const parts = [`mode=${currentMode}`, `min=${minLetters}`];
+  if (currentMode === 'temporal') parts.push(`year=${currentYear}`);
+  if (currentMode === 'seasonal') parts.push(`month=${currentMonth}`);
+  const c = map.getCenter();
+  parts.push(`map=${c.lng.toFixed(3)},${c.lat.toFixed(3)},${map.getZoom().toFixed(2)}`);
+  if (focusedCity) parts.push(`focus=${encodeURIComponent(focusedCity)}`);
+  if (openSelection) {
+    if (openSelection.kind === 'city') {
+      parts.push('sel=city', `name=${encodeURIComponent(openSelection.name)}`);
+    } else if (openSelection.kind === 'route' || openSelection.kind === 'seasonal') {
+      parts.push(`sel=${openSelection.kind}`,
+                 `from=${encodeURIComponent(openSelection.from)}`,
+                 `to=${encodeURIComponent(openSelection.to)}`);
+    }
+  }
+  const newHash = '#' + parts.join('&');
+  if (newHash !== window.location.hash) {
+    lastWrittenHash = newHash;
+    history.replaceState(null, '', newHash);
+  }
+}
+
+// Apply hash values to globals BEFORE map init so map opens at the shared view.
+const initialHash = parseHash();
+if (initialHash.mode && VALID_MODES.includes(initialHash.mode)) currentMode = initialHash.mode;
+if (initialHash.min) {
+  const n = parseInt(initialHash.min, 10);
+  if (Number.isFinite(n) && n >= 1) minLetters = n;
+}
+if (initialHash.year) {
+  const y = parseInt(initialHash.year, 10);
+  if (Number.isFinite(y) && y >= 1368 && y <= 1412) currentYear = y;
+}
+if (initialHash.month) {
+  const m = parseInt(initialHash.month, 10);
+  if (Number.isFinite(m) && m >= 1 && m <= 12) currentMonth = m;
+}
+if (initialHash.focus) focusedCity = initialHash.focus;
+let initCenter = [10, 42];
+let initZoom = 4.5;
+if (initialHash.map) {
+  const [lng, lat, z] = initialHash.map.split(',').map(Number);
+  if (Number.isFinite(lng) && Number.isFinite(lat)) initCenter = [lng, lat];
+  if (Number.isFinite(z)) initZoom = z;
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  MAP INIT
 // ═══════════════════════════════════════════════════════════════
 map = new maplibregl.Map({
   container: 'map',
   style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-  center: [10, 42],
-  zoom: 4.5,
+  center: initCenter,
+  zoom: initZoom,
   minZoom: 2,
   maxZoom: 12,
   attributionControl: { compact: true }
@@ -707,6 +862,7 @@ function setMonth(m) {
   if (map.getSource('seasonal-src')) {
     map.getSource('seasonal-src').setData(buildSeasonalArcGeoJSON(m));
   }
+  writeHash();
 }
 function buildArcGeoJSON(minCount) {
   const features = routesData.features
@@ -949,7 +1105,7 @@ function drawLayers() {
   }
 
   applyMode(currentMode);
-  updateStats(arcGeo);
+  updateStats();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -981,15 +1137,55 @@ function applyMode(mode) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  CITY FOCUS  (filter arcs to only those touching the selected city)
+// ═══════════════════════════════════════════════════════════════
+const TRAVEL_BASE_FILTER = ['!=', ['get', 'avg_travel_days'], null];
+
+function getFocusedCity() { return focusedCity; }
+
+function applyCityFocus() {
+  if (!map.getLayer('arcs-volume')) return;  // layers not drawn yet
+  const cityName = getFocusedCity();
+  if (cityName) {
+    const cityF = ['any',
+      ['==', ['get', 'origin'], cityName],
+      ['==', ['get', 'destination'], cityName]];
+    map.setFilter('arcs-volume', cityF);
+    map.setFilter('arcs-travel', ['all', TRAVEL_BASE_FILTER, cityF]);
+    map.setFilter('arcs-seasonal', cityF);
+  } else {
+    map.setFilter('arcs-volume', null);
+    map.setFilter('arcs-travel', TRAVEL_BASE_FILTER);
+    map.setFilter('arcs-seasonal', null);
+  }
+
+  // Banner
+  const banner = document.getElementById('focus-banner');
+  if (cityName) {
+    const f = citiesData.features.find(ft => ft.properties.name_datini === cityName);
+    document.getElementById('focus-name').textContent = f ? f.properties.name_english : cityName;
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+  updateStats();
+}
+
+function clearCityFocus() { setFocusedCity(null); }
+
+// ═══════════════════════════════════════════════════════════════
 //  STATS BAR
 // ═══════════════════════════════════════════════════════════════
-function updateStats(arcGeo) {
-  const nRoutes  = arcGeo.features.length;
+function updateStats() {
+  const cityName = getFocusedCity();
+  const filtered = routesData.features.filter(f => {
+    if (f.properties.letter_count < minLetters) return false;
+    if (cityName && f.properties.origin !== cityName && f.properties.destination !== cityName) return false;
+    return true;
+  });
+  const nLetters = filtered.reduce((s, f) => s + f.properties.letter_count, 0);
   const nCities  = citiesData.features.filter(f => f.properties.letters_total > 0).length;
-  const nLetters = routesData.features
-    .filter(f => f.properties.letter_count >= minLetters)
-    .reduce((s, f) => s + f.properties.letter_count, 0);
-  document.getElementById('stat-routes').textContent  = nRoutes.toLocaleString();
+  document.getElementById('stat-routes').textContent  = filtered.length.toLocaleString();
   document.getElementById('stat-cities').textContent  = nCities.toLocaleString();
   document.getElementById('stat-letters').textContent = nLetters.toLocaleString();
 }
@@ -998,9 +1194,11 @@ function updateStats(arcGeo) {
 //  POPUPS
 // ═══════════════════════════════════════════════════════════════
 const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '280px' });
+popup.on('close', () => {
+  if (openSelection !== null) { openSelection = null; writeHash(); }
+});
 
-function showCityPopup(e) {
-  const p = e.features[0].properties;
+function showCityPopup(p, lngLat) {
   const senders = topSendersData[p.name_datini] || [];
   const sendersHtml = senders.length
     ? '<b style="color:#8070b0;font-size:0.7rem;">TOP SENDERS</b><br>' +
@@ -1028,11 +1226,12 @@ function showCityPopup(e) {
     ['Active', `${p.year_first} – ${p.year_last}`],
   ]);
 
-  popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  popup.setLngLat(lngLat).setHTML(html).addTo(map);
+  setOpenSelection({ kind: 'city', name: p.name_datini });
+  setFocusedCity(p.name_datini);
 }
 
-function showRoutePopup(e) {
-  const p = e.features[0].properties;
+function showRoutePopup(p, lngLat) {
   const travelStr = p.avg_travel_days != null
     ? `${p.avg_travel_days} days avg (${p.min_travel_days}–${p.max_travel_days})`
     : 'No data';
@@ -1053,7 +1252,8 @@ function showRoutePopup(e) {
     ['Years', `${p.year_min || '?'} – ${p.year_max || '?'}`],
   ]);
 
-  popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  popup.setLngLat(lngLat).setHTML(html).addTo(map);
+  setOpenSelection({ kind: 'route', from: p.origin, to: p.destination });
 }
 
 function updateInfoPanel(title, rows) {
@@ -1062,8 +1262,7 @@ function updateInfoPanel(title, rows) {
     rows.map(([k, v]) => `<div class="stat-row"><span>${k}</span><span class="stat-val">${v}</span></div>`).join('');
 }
 
-function showSeasonalRoutePopup(e) {
-  const p = e.features[0].properties;
+function showSeasonalRoutePopup(p, lngLat) {
   const months = JSON.parse(p.months_json);
   const mData  = months[String(currentMonth)];
   const monthStr = mData
@@ -1100,7 +1299,8 @@ function showSeasonalRoutePopup(e) {
     ${rows}
     <div class="sparkline-wrap" style="margin-top:10px;">${buildSparklineSVG(months, currentMonth, 285, 70)}</div>`;
 
-  popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  popup.setLngLat(lngLat).setHTML(html).addTo(map);
+  setOpenSelection({ kind: 'seasonal', from: p.origin, to: p.destination });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1111,7 +1311,7 @@ function setupInteractions() {
   ['cities-bubbles', 'temporal-circles'].forEach(layer => {
     map.on('click', layer, e => {
       e.preventDefault();
-      showCityPopup(e);
+      showCityPopup(e.features[0].properties, e.lngLat);
     });
     map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'pointer');
     map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
@@ -1120,7 +1320,7 @@ function setupInteractions() {
   ['arcs-volume', 'arcs-travel'].forEach(layer => {
     map.on('click', layer, e => {
       if (e.defaultPrevented) return;
-      showRoutePopup(e);
+      showRoutePopup(e.features[0].properties, e.lngLat);
     });
     map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'crosshair');
     map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
@@ -1128,7 +1328,7 @@ function setupInteractions() {
 
   map.on('click', 'arcs-seasonal', e => {
     if (e.defaultPrevented) return;
-    showSeasonalRoutePopup(e);
+    showSeasonalRoutePopup(e.features[0].properties, e.lngLat);
   });
   map.on('mouseenter', 'arcs-seasonal', () => map.getCanvas().style.cursor = 'crosshair');
   map.on('mouseleave', 'arcs-seasonal', () => map.getCanvas().style.cursor = '');
@@ -1141,16 +1341,17 @@ function setMode(mode) {
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   applyMode(mode);
+  writeHash();
 }
 
 function onMinLettersChange(val) {
   minLetters = parseInt(val, 10);
   document.getElementById('min-letters-val').textContent = minLetters;
   if (map.getSource('arcs')) {
-    const arcGeo = buildArcGeoJSON(minLetters);
-    map.getSource('arcs').setData(arcGeo);
-    updateStats(arcGeo);
+    map.getSource('arcs').setData(buildArcGeoJSON(minLetters));
+    updateStats();
   }
+  writeHash();
 }
 
 function onYearChange(val) {
@@ -1159,6 +1360,73 @@ function onYearChange(val) {
   if (map.getSource('temporal-src')) {
     map.getSource('temporal-src').setData(buildTemporalCities(currentYear));
   }
+  writeHash();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SHARE & EXPORT
+// ═══════════════════════════════════════════════════════════════
+function showShareFeedback(msg) {
+  const el = document.getElementById('share-feedback');
+  el.textContent = msg;
+  clearTimeout(showShareFeedback._t);
+  showShareFeedback._t = setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+async function copyShareLink() {
+  const url = window.location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+    showShareFeedback('Link copied to clipboard');
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showShareFeedback('Link copied'); }
+    catch { showShareFeedback('Could not copy — select the URL bar'); }
+    document.body.removeChild(ta);
+  }
+}
+
+// Re-open a popup from hash state (used on initial load to restore shared view).
+function replaySelection(hash) {
+  if (!hash.sel) return;
+  if (hash.sel === 'city' && hash.name) {
+    const f = citiesData.features.find(ft => ft.properties.name_datini === hash.name);
+    if (!f) return;
+    const [lng, lat] = f.geometry.coordinates;
+    showCityPopup(f.properties, { lng, lat });
+  } else if (hash.sel === 'route' && hash.from && hash.to) {
+    const f = routesData.features.find(ft =>
+      ft.properties.origin === hash.from && ft.properties.destination === hash.to);
+    if (!f) return;
+    const p = f.properties;
+    showRoutePopup(p, { lng: (p.origin_lng + p.dest_lng) / 2,
+                        lat: (p.origin_lat + p.dest_lat) / 2 });
+  } else if (hash.sel === 'seasonal' && hash.from && hash.to) {
+    const f = buildSeasonalArcGeoJSON(currentMonth).features.find(ft =>
+      ft.properties.origin === hash.from && ft.properties.destination === hash.to);
+    if (!f) return;
+    const p = f.properties;
+    showSeasonalRoutePopup(p, { lng: (p.origin_lng + p.dest_lng) / 2,
+                                lat: (p.origin_lat + p.dest_lat) / 2 });
+  }
+}
+
+// Sync sidebar controls to global state (used after parsing hash on load).
+function syncControlsToState() {
+  document.querySelectorAll('.mode-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === currentMode));
+  const minSlider = document.getElementById('min-letters');
+  minSlider.value = minLetters;
+  document.getElementById('min-letters-val').textContent = minLetters;
+  const yearSlider = document.getElementById('year-slider');
+  yearSlider.value = currentYear;
+  document.getElementById('year-val').textContent = currentYear;
+  document.getElementById('month-name-label').textContent = MONTH_NAMES[currentMonth - 1];
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1166,8 +1434,17 @@ function onYearChange(val) {
 // ═══════════════════════════════════════════════════════════════
 map.on('load', async () => {
   await loadData();
+  syncControlsToState();
   drawLayers();
+  if (focusedCity) applyCityFocus();
   setupInteractions();
+  map.on('moveend', writeHash);
+  window.addEventListener('hashchange', () => {
+    // Ignore self-writes; reload on external changes (back/forward, manual edit).
+    if (window.location.hash !== lastWrittenHash) location.reload();
+  });
+  writeHash();
+  replaySelection(initialHash);
   const loading = document.getElementById('loading');
   loading.classList.add('hidden');
   setTimeout(() => loading.style.display = 'none', 600);
