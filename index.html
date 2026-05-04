@@ -7,6 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='10' fill='%231a0a3e'/><rect x='10' y='18' width='44' height='30' rx='3' fill='%23f0d060' stroke='%232a1a5e' stroke-width='2'/><path d='M10 20 L32 38 L54 20' fill='none' stroke='%232a1a5e' stroke-width='3' stroke-linejoin='round'/></svg>" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -31,6 +32,7 @@
     }
 
     #sidebar-header {
+      position: relative;
       background: linear-gradient(135deg, #2a1a5e, #1a0a3e);
       padding: 18px 16px 14px;
       border-bottom: 1px solid #4a3a80;
@@ -148,6 +150,57 @@
 
     #info-panel .stat-row:last-child { border-bottom: none; }
     #info-panel .stat-val { color: #f0d060; }
+
+    /* ── Sender/recipient lists in info panel ── */
+    .person-section { margin-top: 12px; }
+    .person-heading {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8070b0;
+      margin-bottom: 4px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid #2a2040;
+    }
+    .person-heading-count {
+      color: #6050a0;
+      font-size: 0.65rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .person-scroll {
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #4a3a80 #1a1430;
+    }
+    .person-scroll::-webkit-scrollbar { width: 8px; }
+    .person-scroll::-webkit-scrollbar-track { background: #1a1430; }
+    .person-scroll::-webkit-scrollbar-thumb {
+      background: #4a3a80;
+      border-radius: 4px;
+    }
+    .person-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 3px 0;
+      border-bottom: 1px solid #20183a;
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+    .person-row:last-child { border-bottom: none; }
+    .person-row > span:first-child {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .person-row .person-count {
+      color: #f0d060;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
 
     .hint {
       font-size: 0.7rem;
@@ -379,6 +432,262 @@
     }
 
     .sparkline-wrap svg text { font-family: 'Georgia', serif; }
+
+    /* ── Clickable sender names in city popup ── */
+    .sender-link {
+      color: #f0d060;
+      cursor: pointer;
+      text-decoration: underline dotted #6050a0;
+    }
+    .sender-link:hover { color: #ffe890; text-decoration-color: #a080e0; }
+
+    /* ── Sender ego-network modal ── */
+    /* ── Modal shell (shared by sender & about modals) ── */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 12, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      background: #15102a;
+      border: 1px solid #4a3a80;
+      border-radius: 8px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-header {
+      background: linear-gradient(135deg, #2a1a5e, #1a0a3e);
+      padding: 12px 18px;
+      border-bottom: 1px solid #4a3a80;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .modal-header h2 {
+      font-size: 1rem;
+      color: #f0d060;
+      font-family: 'Georgia', serif;
+      font-weight: normal;
+      letter-spacing: 0.02em;
+    }
+    .modal-header-text {
+      flex: 1;
+      min-width: 0;
+    }
+    #sender-modal-aliases {
+      font-size: 0.7rem;
+      color: #8070b0;
+      font-style: italic;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    #sender-modal-aliases:empty { display: none; }
+    #sender-modal-aliases b {
+      color: #6050a0;
+      font-style: normal;
+      font-weight: normal;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.62rem;
+      margin-right: 6px;
+    }
+    .modal-close {
+      background: transparent;
+      border: 1px solid #6050a0;
+      border-radius: 4px;
+      color: #d0c0f0;
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 3px 10px;
+      cursor: pointer;
+    }
+    .modal-close:hover { background: #3a2a70; }
+    #sender-modal-track {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      letter-spacing: 0.02em;
+    }
+    .modal-footer {
+      padding: 8px 18px;
+      border-top: 1px solid #2a2040;
+      font-size: 0.7rem;
+      color: #8070a0;
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* ── Sender ego-network modal — graph-specific bits ── */
+    #sender-modal-card {
+      width: min(880px, 94vw);
+      height: min(640px, 90vh);
+    }
+    #sender-modal-meta {
+      font-size: 0.72rem;
+      color: #a090c0;
+      font-style: italic;
+      white-space: nowrap;
+    }
+    #sender-modal-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #sender-graph {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #sender-modal-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8070a0;
+      font-style: italic;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* ── About modal — text content ── */
+    #about-modal-card {
+      width: min(620px, 94vw);
+      max-height: 90vh;
+    }
+    #about-modal-body {
+      padding: 18px 22px;
+      overflow-y: auto;
+      color: #c0b0e0;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+    #about-modal-body p { margin-bottom: 10px; }
+    #about-modal-body a { color: #a080e0; }
+    #about-modal-body h3 {
+      color: #f0d060;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 14px 0 6px;
+    }
+    #about-modal-body h3:first-child { margin-top: 0; }
+
+    /* ── Sidebar header about button ── */
+    #about-link {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: transparent;
+      border: 1px solid #6050a0;
+      border-radius: 4px;
+      color: #d0c0f0;
+      font-family: inherit;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    #about-link:hover { background: #3a2a70; }
+
+    /* ── Person search ── */
+    .search-row { position: relative; }
+    #person-search {
+      width: 100%;
+      background: #1a1430;
+      border: 1px solid #3a2a60;
+      border-radius: 6px;
+      color: #e8dfc8;
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 7px 28px 7px 10px;
+    }
+    #person-search:focus {
+      outline: none;
+      border-color: #6050a0;
+      background: #1f1840;
+    }
+    #person-search::placeholder { color: #6050a0; font-style: italic; }
+    #person-search-clear {
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #8070b0;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      line-height: 1;
+    }
+    #person-search-clear:hover { color: #f0d060; }
+    #person-search-results {
+      margin-top: 6px;
+      background: #12102a;
+      border: 1px solid #3a2a60;
+      border-radius: 6px;
+      max-height: 240px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #4a3a80 #1a1430;
+      display: none;
+    }
+    #person-search-results.has-results { display: block; }
+    .search-result {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #20183a;
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+    .search-result:last-child { border-bottom: none; }
+    .search-result:hover { background: #2a1a4e; }
+    .search-result .name {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+      color: #f0d060;
+    }
+    .search-result .meta {
+      color: #8070b0;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      align-self: center;
+    }
+    .search-empty {
+      padding: 8px 10px;
+      color: #6050a0;
+      font-style: italic;
+      font-size: 0.74rem;
+      text-align: center;
+    }
+    .ego-node circle { cursor: pointer; transition: stroke-width 0.15s; }
+    .ego-node circle:hover { stroke-width: 2.5; }
+    .ego-node text {
+      font-family: 'Georgia', serif;
+      font-size: 11px;
+      fill: #e8dfc8;
+      pointer-events: none;
+      text-anchor: middle;
+      paint-order: stroke;
+      stroke: #15102a;
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+    .ego-node.fondaco text { fill: #ffe0c0; }
   </style>
 </head>
 <body>
@@ -388,9 +697,23 @@
   <div id="sidebar-header">
     <h1>🗺 Datini Letters<br>Geospatial Explorer</h1>
     <p>Francesco di Marco Datini's merchant correspondence network<br>c. 1363–1412 &nbsp;·&nbsp; 145,417 letters &nbsp;·&nbsp; 285 cities</p>
+    <button id="about-link" onclick="openAboutModal()" aria-label="About this dataset">ⓘ&nbsp;About</button>
   </div>
 
   <div id="sidebar-body">
+
+    <!-- Person Search -->
+    <div class="section">
+      <div class="section-title">Find a Correspondent</div>
+      <div class="search-row">
+        <input type="text" id="person-search" placeholder="Type a name (e.g. BENINI, GADDI…)"
+               aria-label="Search correspondents by name"
+               oninput="onPersonSearchInput(this.value)" />
+        <button id="person-search-clear" onclick="clearPersonSearch()" aria-label="Clear search"
+                style="display:none;">×</button>
+      </div>
+      <div id="person-search-results" role="listbox"></div>
+    </div>
 
     <!-- Visualisation Mode -->
     <div class="section">
@@ -410,6 +733,9 @@
         </button>
         <button class="mode-btn" data-mode="seasonal" onclick="setMode('seasonal')" style="grid-column:1/-1;">
           <span class="icon">🌿</span>Seasonal Travel Time
+        </button>
+        <button class="mode-btn" data-mode="trajectory" onclick="setMode('trajectory')" style="grid-column:1/-1;">
+          <span class="icon">👤</span>Person Trajectory
         </button>
       </div>
     </div>
@@ -436,6 +762,32 @@
         <div class="slider-label">Min letters per route <span id="min-letters-val">50</span></div>
         <input type="range" id="min-letters" min="1" max="2000" value="50" step="1"
                oninput="onMinLettersChange(this.value)" />
+      </div>
+
+      <div id="trajectory-filter" style="display:none;">
+        <div id="trajectory-empty" class="hint" style="margin: 4px 0 8px;">
+          Use the search above (or click 📍 Track on map in any ego-network) to pick someone to follow.
+        </div>
+        <div id="trajectory-active" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.68rem;color:#8070b0;letter-spacing:0.08em;">TRACKING</div>
+              <div id="trajectory-name"
+                   style="color:#f0d060;font-size:0.85rem;line-height:1.3;word-break:break-word;"></div>
+              <div id="trajectory-aliases"
+                   style="font-size:0.66rem;color:#6050a0;font-style:italic;margin-top:2px;"></div>
+            </div>
+            <button onclick="clearTrajectory()"
+                    style="background:transparent;border:1px solid #6050a0;border-radius:3px;color:#d0c0f0;font-family:inherit;font-size:0.68rem;padding:2px 6px;cursor:pointer;flex-shrink:0;">×&nbsp;Clear</button>
+          </div>
+          <div class="slider-row" style="margin-top:10px;">
+            <div class="slider-label">Year <span id="trajectory-year-val">—</span></div>
+            <input type="range" id="trajectory-year-slider" min="1368" max="1412" value="1390" step="1"
+                   oninput="onTrajectoryYearChange(this.value)" />
+            <div id="trajectory-year-summary"
+                 style="font-size:0.68rem;color:#8070a0;font-style:italic;margin-top:6px;line-height:1.4;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -523,6 +875,27 @@
           Click any arc to see the full 12-month travel time chart for that route.
         </div>
       </div>
+
+      <div id="legend-trajectory" style="display:none;">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#f0d060; width:14px; height:14px; border:2px solid #ffe890;"></div>
+          <span>Active in selected year — circle = letters at that city</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#3a2a60; width:10px; height:10px; opacity:0.7;"></div>
+          <span>Active in another year (career footprint)</span>
+        </div>
+        <div class="legend-item" style="margin-top:8px;">
+          <div class="legend-line" style="background:#a080e0; height:2px; width:28px;"></div>
+          <span>Career-path arc — direction of travel between consecutive home cities. Click for years.</span>
+        </div>
+        <div class="hint" style="margin-top:8px;">
+          A person's location in a given year is inferred from the origin of their letters
+          (when sending) and the destination (when receiving). Undated letters can't be
+          placed in time and are excluded. Career arcs connect the *primary* (most-active)
+          city in each year, so within-year side trips don't appear on the path itself.
+        </div>
+      </div>
     </div>
 
     <!-- Share -->
@@ -531,26 +904,6 @@
       <button class="share-btn" onclick="copyShareLink()">🔗 &nbsp;Copy link to current view</button>
       <div class="share-hint">Captures mode, filters, map position, focus and any open popup — anyone opening the link sees exactly what you see now.</div>
       <div id="share-feedback" class="share-feedback"></div>
-    </div>
-
-    <!-- About -->
-    <div class="section">
-      <div class="section-title">About</div>
-      <p style="font-size:0.73rem; color:#8070a0; line-height:1.6;">
-        Franklin-Lyons &amp; Oleinikov (2025).
-        <a href="https://muse.jhu.edu/pub/1/article/979930/pdf" target="_blank"
-           style="color:#a080e0;">Datini Letter Collection Metadata.</a>
-        <em>Digital Philology</em> 14(2): 384–391.<br><br>
-        Dataset:
-        <a href="https://osf.io/mt25a/overview" target="_blank"
-           style="color:#a080e0;">OSF · Datini Correspondence Metadata Project</a><br><br>
-        Letter editions:
-        <a href="http://datini.archiviodistato.prato.it/la-ricerca/le-edizioni-delle-lettere"
-           target="_blank" rel="noopener"
-           style="color:#a080e0;">Archivio di Stato di Prato · Le edizioni delle lettere</a><br><br>
-        145,417 letters from the Archivio di Stato di Prato spanning the Mediterranean
-        trade network of the Datini company, geocoded to 285 cities.
-      </p>
     </div>
 
   </div>
@@ -574,6 +927,68 @@
   </div>
 </div>
 
+<!-- ─── SENDER EGO-NETWORK MODAL ────────────────────────── -->
+<div id="sender-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="sender-modal-title">
+  <div id="sender-modal-card" class="modal-card">
+    <div class="modal-header">
+      <div class="modal-header-text">
+        <h2 id="sender-modal-title">—</h2>
+        <div id="sender-modal-aliases"></div>
+      </div>
+      <span id="sender-modal-meta"></span>
+      <button class="modal-close" id="sender-modal-track" onclick="trackCurrentPersonOnMap()"
+              title="Show this person's locations year-by-year on the map">📍&nbsp;Track on map</button>
+      <button class="modal-close" onclick="closePersonModal()" aria-label="Close">×</button>
+    </div>
+    <div id="sender-modal-body">
+      <svg id="sender-graph"></svg>
+      <div id="sender-modal-empty" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      Node size = total letters touching that city · Gold = sent by this person, teal = received by them · Click a city to focus the map on it
+    </div>
+  </div>
+</div>
+
+<!-- ─── ABOUT MODAL ─────────────────────────────────────── -->
+<div id="about-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+  <div id="about-modal-card" class="modal-card">
+    <div class="modal-header">
+      <h2 id="about-modal-title">About this dataset</h2>
+      <button class="modal-close" onclick="closeAboutModal()" aria-label="Close">×</button>
+    </div>
+    <div id="about-modal-body">
+      <p>
+        145,417 letters from the <strong>Archivio di Stato di Prato</strong>, spanning the
+        Mediterranean trade network of the Datini company c. 1363–1412 and geocoded to
+        285 cities.
+      </p>
+
+      <h3>Citation</h3>
+      <p>
+        Franklin-Lyons &amp; Oleinikov (2025).
+        <a href="https://muse.jhu.edu/pub/1/article/979930/pdf" target="_blank" rel="noopener">Datini Letter Collection Metadata</a>.
+        <em>Digital Philology</em> 14(2): 384–391.
+      </p>
+
+      <h3>Dataset</h3>
+      <p>
+        <a href="https://osf.io/mt25a/overview" target="_blank" rel="noopener">OSF · Datini Correspondence Metadata Project</a>
+      </p>
+
+      <h3>Letter editions</h3>
+      <p>
+        <a href="http://datini.archiviodistato.prato.it/la-ricerca/le-edizioni-delle-lettere" target="_blank" rel="noopener">Archivio di Stato di Prato · Le edizioni delle lettere</a>
+      </p>
+
+      <h3>Source &amp; documentation</h3>
+      <p>
+        <a href="https://github.com/docuracy/datini#readme" target="_blank" rel="noopener">github.com/docuracy/datini</a>
+      </p>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
 //  STATE
@@ -585,15 +1000,20 @@ let currentMonth = 1;
 let routesData   = null;
 let citiesData   = null;
 let timelineData = null;
-let topSendersData  = null;
+let sendersByCity    = null;   // full ranked list of senders per origin city
+let recipientsByCity = null;   // full ranked list of recipients per destination city
 let seasonalData    = null;
+let correspondentsData = null;
+let openPerson      = null;   // currently-open ego-network modal correspondent name
+let trajectoryPerson = null;  // person currently being tracked on the map (Trajectory mode)
+let trajectoryYear   = null;  // year being shown in Trajectory mode (null until person set)
 let map;
 
 // ═══════════════════════════════════════════════════════════════
 //  HASH URL STATE  (shareable view)
 //  Format: #mode=seasonal&min=50&year=1390&month=3&map=10.00,42.00,4.50
 // ═══════════════════════════════════════════════════════════════
-const VALID_MODES = ['volume', 'traveltime', 'cities', 'temporal', 'seasonal'];
+const VALID_MODES = ['volume', 'traveltime', 'cities', 'temporal', 'seasonal', 'trajectory'];
 let suppressHashWrite = false;
 // Currently open popup, mirrored into the URL hash for shareable links.
 //   { kind: 'city',     name: <name_datini> }
@@ -630,6 +1050,11 @@ function writeHash() {
   const c = map.getCenter();
   parts.push(`map=${c.lng.toFixed(3)},${c.lat.toFixed(3)},${map.getZoom().toFixed(2)}`);
   if (focusedCity) parts.push(`focus=${encodeURIComponent(focusedCity)}`);
+  if (openPerson)  parts.push(`person=${encodeURIComponent(openPerson)}`);
+  if (currentMode === 'trajectory' && trajectoryPerson) {
+    parts.push(`track=${encodeURIComponent(trajectoryPerson)}`);
+    if (trajectoryYear != null) parts.push(`trackyear=${trajectoryYear}`);
+  }
   if (openSelection) {
     if (openSelection.kind === 'city') {
       parts.push('sel=city', `name=${encodeURIComponent(openSelection.name)}`);
@@ -662,6 +1087,10 @@ if (initialHash.month) {
   if (Number.isFinite(m) && m >= 1 && m <= 12) currentMonth = m;
 }
 if (initialHash.focus) focusedCity = initialHash.focus;
+if (initialHash.trackyear) {
+  const ty = parseInt(initialHash.trackyear, 10);
+  if (Number.isFinite(ty)) trajectoryYear = ty;
+}
 let initCenter = [10, 42];
 let initZoom = 4.5;
 if (initialHash.map) {
@@ -690,19 +1119,46 @@ map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), '
 //  LOAD DATA
 // ═══════════════════════════════════════════════════════════════
 async function loadData() {
-  const [r, c, t, s, sea] = await Promise.all([
+  const [r, c, t, s, sea, corr, recip] = await Promise.all([
     fetch('data/processed/routes.geojson').then(r => r.json()),
     fetch('data/processed/cities.geojson').then(r => r.json()),
     fetch('data/processed/timeline.json').then(r => r.json()),
-    fetch('data/processed/top_senders.json').then(r => r.json()),
+    fetch('data/processed/senders_by_city.json').then(r => r.json()),
     fetch('data/processed/seasonal_travel.json').then(r => r.json()),
+    fetch('data/processed/correspondents.json').then(r => r.json()),
+    fetch('data/processed/recipients_by_city.json').then(r => r.json()),
   ]);
-  routesData     = r;
-  citiesData     = c;
-  timelineData   = t;
-  topSendersData = s;
-  seasonalData   = sea;
+  routesData         = r;
+  citiesData         = c;
+  timelineData       = t;
+  sendersByCity      = s;
+  seasonalData       = sea;
+  correspondentsData = corr;
+  recipientsByCity   = recip;
+  buildSearchIndex();
   buildMonthPicker();
+}
+
+// Pre-built per-entry blob of canonical+aliases for substring search
+// (so a query like "FRATELLI" finds entries even when only an alias matches).
+let personSearchIndex = null;
+function buildSearchIndex() {
+  if (!correspondentsData) return;
+  personSearchIndex = [];
+  for (const name in correspondentsData) {
+    const d = correspondentsData[name];
+    const haystack = (d.aliases && d.aliases.length)
+      ? name + '  ' + d.aliases.join('  ')
+      : name;
+    personSearchIndex.push({
+      name,
+      haystack,
+      total: d.sent_total + d.received_total,
+      sent:  d.sent_total,
+      recv:  d.received_total,
+      hasAliases: !!(d.aliases && d.aliases.length),
+    });
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -905,6 +1361,174 @@ function buildTemporalCities(year) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  TRAJECTORY-MODE GEOJSON BUILDERS
+// ═══════════════════════════════════════════════════════════════
+// Build the "all-years" footprint and the "selected-year" highlights as
+// a single FeatureCollection. Each feature has:
+//   active:  true if the city is active in the selected year
+//   count:   letter count at that city for the selected year (0 if !active)
+//   total:   letter count summed across all years (always present)
+function buildTrajectoryGeoJSON(person, year) {
+  if (!person || !correspondentsData[person] || !correspondentsData[person].trajectory) {
+    return { type: 'FeatureCollection', features: [] };
+  }
+  const traj = correspondentsData[person].trajectory;
+  const cityLookup = {};
+  citiesData.features.forEach(f => { cityLookup[f.properties.name_datini] = f; });
+
+  const totals = new Map();   // city → total across all years
+  const yearMap = new Map();  // city → count in `year`
+  for (const [y, city, n] of traj) {
+    totals.set(city, (totals.get(city) || 0) + n);
+    if (y === year) yearMap.set(city, (yearMap.get(city) || 0) + n);
+  }
+
+  const features = [];
+  for (const [city, total] of totals) {
+    const base = cityLookup[city];
+    if (!base) continue;
+    const count = yearMap.get(city) || 0;
+    features.push({
+      type: 'Feature',
+      geometry: base.geometry,
+      properties: {
+        ...base.properties,
+        active: count > 0,
+        count,
+        total,
+      },
+    });
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+// Year range over the entire trajectory (including years with no activity if
+// they fall between first and last — the slider should still cover them).
+function trajectoryYearRange(person) {
+  const t = correspondentsData[person] && correspondentsData[person].trajectory;
+  if (!t || !t.length) return null;
+  let lo = Infinity, hi = -Infinity;
+  for (const [y] of t) { if (y < lo) lo = y; if (y > hi) hi = y; }
+  return { lo, hi };
+}
+
+// Compress the trajectory into a sequence of moves between consecutive
+// "primary" (max-letter-count) cities — one arrow per actual relocation.
+// Years where the primary city is unchanged collapse into a single hop
+// spanning the full stay; gap years (no recorded activity) are stepped
+// over silently.
+function careerPathSegments(person) {
+  const t = correspondentsData[person] && correspondentsData[person].trajectory;
+  if (!t || !t.length) return [];
+  const byYear = new Map();
+  for (const [y, c, n] of t) {
+    if (!byYear.has(y)) byYear.set(y, []);
+    byYear.get(y).push([c, n]);
+  }
+  const sortedYears = [...byYear.keys()].sort((a, b) => a - b);
+  const primaries = sortedYears.map(y => {
+    const cities = byYear.get(y);
+    cities.sort((a, b) => b[1] - a[1]);
+    return { year: y, city: cities[0][0] };
+  });
+  const segments = [];
+  for (let i = 1; i < primaries.length; i++) {
+    if (primaries[i].city !== primaries[i - 1].city) {
+      segments.push({
+        from: primaries[i - 1].city,
+        to: primaries[i].city,
+        from_year: primaries[i - 1].year,
+        to_year: primaries[i].year,
+        index: segments.length + 1,
+      });
+    }
+  }
+  return segments;
+}
+
+// Register a canvas-drawn arrowhead as a map icon. Idempotent.
+function ensureArrowGlyph() {
+  if (map.hasImage && map.hasImage('career-arrow')) return;
+  const size = 32;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 2.5;
+  // Chevron-style arrow with a notch, pointing right (rotation = 0).
+  ctx.beginPath();
+  ctx.moveTo(size * 0.94, size * 0.5);   // tip (east)
+  ctx.lineTo(size * 0.18, size * 0.14);  // top-left wing
+  ctx.lineTo(size * 0.42, size * 0.5);   // inner notch
+  ctx.lineTo(size * 0.18, size * 0.86);  // bottom-left wing
+  ctx.closePath();
+  ctx.fillStyle = '#c0a0ff';
+  ctx.fill();
+  ctx.strokeStyle = '#0a0818';
+  ctx.stroke();
+  const data = ctx.getImageData(0, 0, size, size);
+  // pixelRatio 2 → 32px source renders at 16 logical px (crisp on retina).
+  map.addImage('career-arrow', data, { pixelRatio: 2 });
+}
+
+function buildCareerPathGeoJSON(person) {
+  if (!person) return { type: 'FeatureCollection', features: [] };
+  const segments = careerPathSegments(person);
+  const cityLookup = {};
+  citiesData.features.forEach(f => { cityLookup[f.properties.name_datini] = f; });
+
+  const features = [];
+  for (const seg of segments) {
+    const f = cityLookup[seg.from], t = cityLookup[seg.to];
+    if (!f || !t) continue;
+    const [lng1, lat1] = f.geometry.coordinates;
+    const [lng2, lat2] = t.geometry.coordinates;
+    const coords = curvedLine(lng1, lat1, lng2, lat2);
+
+    const fromEn = f.properties.name_english;
+    const toEn   = t.properties.name_english;
+    const label  = seg.from_year === seg.to_year - 1
+      ? `${seg.from_year}→${seg.to_year}`
+      : `${seg.from_year} → ${seg.to_year}`;
+    const props = {
+      from:      seg.from,
+      to:        seg.to,
+      from_en:   fromEn,
+      to_en:     toEn,
+      from_year: seg.from_year,
+      to_year:   seg.to_year,
+      index:     seg.index,
+      label,
+    };
+
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: coords },
+      properties: { ...props, kind: 'line' },
+    });
+
+    // Arrowhead: place a Point at the curve apex (~50%) so it's well clear
+    // of both endpoints' city circles, and compute its bearing along the
+    // local tangent so the glyph rotates to point toward the destination.
+    const i = Math.floor(coords.length * 0.5);
+    const [px, py] = coords[i];
+    const [qx, qy] = coords[Math.min(i + 1, coords.length - 1)];
+    const dx = qx - px, dy = qy - py;
+    // text-rotate is clockwise from screen-east; geographic dy (north) is up
+    // on screen, so we negate dy. '▶' (U+25B6) is the unrotated glyph.
+    const angle = Math.atan2(-dy, dx) * 180 / Math.PI;
+
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [px, py] },
+      properties: { ...props, kind: 'arrow', angle },
+    });
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  ADD / UPDATE SOURCES
 // ═══════════════════════════════════════════════════════════════
 function ensureSource(id, data) {
@@ -942,6 +1566,8 @@ function drawLayers() {
   ensureSource('cities-src', citiesData);
   ensureSource('temporal-src', buildTemporalCities(currentYear));
   ensureSource('seasonal-src', buildSeasonalArcGeoJSON(currentMonth));
+  ensureSource('trajectory-src',  buildTrajectoryGeoJSON(trajectoryPerson, trajectoryYear));
+  ensureSource('career-path-src', buildCareerPathGeoJSON(trajectoryPerson));
 
   // ── ARC VOLUME layer ─────────────────────────────────────────
   if (!map.getLayer('arcs-volume')) {
@@ -1104,6 +1730,104 @@ function drawLayers() {
     });
   }
 
+  // ── TRAJECTORY layers ────────────────────────────────────────
+  // Background dots: every city the tracked person was ever active in
+  if (!map.getLayer('trajectory-footprint')) {
+    map.addLayer({
+      id: 'trajectory-footprint',
+      type: 'circle',
+      source: 'trajectory-src',
+      filter: ['!', ['get', 'active']],
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['get', 'total'], 1, 3, 50, 6, 500, 10, 5000, 14],
+        'circle-color': '#3a2a60',
+        'circle-opacity': 0.65,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#5040a0',
+        'circle-stroke-opacity': 0.7,
+      },
+    });
+  }
+  // Career-path arcs: one curved line per recorded relocation. Lines render
+  // beneath the city circles so the path reads as a backdrop; the matching
+  // arrow symbols are added last (further down) so they always sit on top
+  // and remain legible against any overlapping markers.
+  if (!map.getLayer('career-path-lines')) {
+    map.addLayer({
+      id: 'career-path-lines',
+      type: 'line',
+      source: 'career-path-src',
+      filter: ['==', ['get', 'kind'], 'line'],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': '#a080e0',
+        'line-width': 2,
+        'line-opacity': 0.75,
+      },
+    });
+  }
+  // Highlighted: cities active in the selected year
+  if (!map.getLayer('trajectory-active')) {
+    map.addLayer({
+      id: 'trajectory-active',
+      type: 'circle',
+      source: 'trajectory-src',
+      filter: ['get', 'active'],
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['get', 'count'], 1, 6, 10, 12, 50, 18, 200, 26],
+        'circle-color': '#f0d060',
+        'circle-opacity': 0.85,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffe890',
+        'circle-stroke-opacity': 0.95,
+      },
+    });
+  }
+  if (!map.getLayer('trajectory-active-labels')) {
+    map.addLayer({
+      id: 'trajectory-active-labels',
+      type: 'symbol',
+      source: 'trajectory-src',
+      filter: ['get', 'active'],
+      layout: {
+        'text-field': ['concat', ['get', 'name_english'], '\n', ['to-string', ['get', 'count']], ' letters'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.4],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: {
+        'text-color': '#f0d060',
+        'text-halo-color': '#0a0818',
+        'text-halo-width': 1.8,
+        'text-opacity': 0.95,
+      },
+    });
+  }
+  // Arrows last so they always sit on top of city markers.
+  // We use a canvas-drawn icon rather than a Unicode text glyph because the
+  // basemap's compiled glyph ranges aren't guaranteed to include arrows or
+  // geometric shapes — MapLibre silently renders nothing when a glyph is
+  // missing, which is what produced the empty-arrow bug previously.
+  ensureArrowGlyph();
+  if (!map.getLayer('career-path-arrows')) {
+    map.addLayer({
+      id: 'career-path-arrows',
+      type: 'symbol',
+      source: 'career-path-src',
+      filter: ['==', ['get', 'kind'], 'arrow'],
+      layout: {
+        'icon-image': 'career-arrow',
+        'icon-rotate': ['get', 'angle'],
+        'icon-rotation-alignment': 'map',
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+        'icon-size': 1,
+      },
+    });
+  }
+
   applyMode(currentMode);
   updateStats();
 }
@@ -1116,13 +1840,18 @@ function applyMode(mode) {
 
   const vis = id => v => map.setLayoutProperty(id, 'visibility', v ? 'visible' : 'none');
 
-  vis('arcs-volume')     (mode === 'volume');
-  vis('arcs-travel')     (mode === 'traveltime');
-  vis('arcs-seasonal')   (mode === 'seasonal');
-  vis('cities-bubbles')  (mode === 'volume' || mode === 'traveltime' || mode === 'cities');
-  vis('cities-labels')   (mode === 'volume' || mode === 'traveltime' || mode === 'cities');
-  vis('temporal-circles')(mode === 'temporal');
-  vis('temporal-labels') (mode === 'temporal');
+  vis('arcs-volume')             (mode === 'volume');
+  vis('arcs-travel')             (mode === 'traveltime');
+  vis('arcs-seasonal')           (mode === 'seasonal');
+  vis('cities-bubbles')          (mode === 'volume' || mode === 'traveltime' || mode === 'cities');
+  vis('cities-labels')           (mode === 'volume' || mode === 'traveltime' || mode === 'cities');
+  vis('temporal-circles')        (mode === 'temporal');
+  vis('temporal-labels')         (mode === 'temporal');
+  vis('trajectory-footprint')    (mode === 'trajectory');
+  vis('career-path-lines')       (mode === 'trajectory');
+  vis('career-path-arrows')      (mode === 'trajectory');
+  vis('trajectory-active')       (mode === 'trajectory');
+  vis('trajectory-active-labels')(mode === 'trajectory');
 
   // Legends
   document.getElementById('legend-volume')    .style.display = mode === 'volume'     ? '' : 'none';
@@ -1130,10 +1859,18 @@ function applyMode(mode) {
   document.getElementById('legend-cities')    .style.display = mode === 'cities'     ? '' : 'none';
   document.getElementById('legend-temporal')  .style.display = mode === 'temporal'   ? '' : 'none';
   document.getElementById('legend-seasonal')  .style.display = mode === 'seasonal'   ? '' : 'none';
+  document.getElementById('legend-trajectory').style.display = mode === 'trajectory' ? '' : 'none';
 
   // Filter controls
-  document.getElementById('year-filter') .style.display = mode === 'temporal' ? '' : 'none';
-  document.getElementById('month-filter').style.display = mode === 'seasonal'  ? '' : 'none';
+  document.getElementById('year-filter')      .style.display = mode === 'temporal'   ? '' : 'none';
+  document.getElementById('month-filter')     .style.display = mode === 'seasonal'   ? '' : 'none';
+  document.getElementById('trajectory-filter').style.display = mode === 'trajectory' ? '' : 'none';
+
+  // Min-letters slider is meaningless in trajectory and temporal modes
+  const minLettersRow = document.getElementById('min-letters').closest('.slider-row');
+  if (minLettersRow) {
+    minLettersRow.style.display = (mode === 'trajectory' || mode === 'temporal') ? 'none' : '';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1198,33 +1935,72 @@ popup.on('close', () => {
   if (openSelection !== null) { openSelection = null; writeHash(); }
 });
 
+const escAttr = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const escText = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// Inline (popup) list — short, top-N only.
+function popupPeopleList(heading, list, n = 5) {
+  if (!list || !list.length) return '';
+  const rows = list.slice(0, n).map(item => {
+    const hasData = correspondentsData && correspondentsData[item.name];
+    return hasData
+      ? `<span class="sender-link" data-person="${escAttr(item.name)}">${escText(item.name)}</span> (${item.count.toLocaleString()})`
+      : `${escText(item.name)} (${item.count.toLocaleString()})`;
+  }).join('<br>');
+  const more = list.length > n ? ` <span style="color:#6050a0;">… +${list.length - n} more in panel</span>` : '';
+  return `<b style="color:#8070b0;font-size:0.7rem;">${heading}</b> <span style="color:#6050a0;font-size:0.65rem;">(click for ego network)</span><br>${rows}${more}`;
+}
+
+// Sidebar (info panel) list — full list, scrolling.
+function panelPeopleList(heading, list) {
+  if (!list || !list.length) return '';
+  const rows = list.map(item => {
+    const hasData = correspondentsData && correspondentsData[item.name];
+    const nameCell = hasData
+      ? `<span class="sender-link" data-person="${escAttr(item.name)}">${escText(item.name)}</span>`
+      : `<span>${escText(item.name)}</span>`;
+    return `<div class="person-row">${nameCell}<span class="person-count">${item.count.toLocaleString()}</span></div>`;
+  }).join('');
+  return `<div class="person-section">
+    <div class="person-heading">${heading} <span class="person-heading-count">(${list.length})</span></div>
+    <div class="person-scroll">${rows}</div>
+  </div>`;
+}
+
 function showCityPopup(p, lngLat) {
-  const senders = topSendersData[p.name_datini] || [];
-  const sendersHtml = senders.length
-    ? '<b style="color:#8070b0;font-size:0.7rem;">TOP SENDERS</b><br>' +
-      senders.map(s => `${s.name} (${s.count.toLocaleString()})`).join('<br>')
-    : '';
+  const senders    = sendersByCity[p.name_datini]    || [];
+  const recipients = recipientsByCity[p.name_datini] || [];
 
   const badge = p.is_fondaco
     ? '<span class="badge badge-fondaco">FONDACO</span>'
     : '<span class="badge badge-city">CITY</span>';
 
+  const sendersInline    = popupPeopleList('TOP SENDERS',    senders);
+  const recipientsInline = popupPeopleList('TOP RECIPIENTS', recipients);
+
   const html = `
-    <div class="popup-title">${p.name_english} ${badge}</div>
+    <div class="popup-title">${escText(p.name_english)} ${badge}</div>
     <div class="popup-row"><span>Letters sent</span><span class="popup-val">${p.letters_sent.toLocaleString()}</span></div>
     <div class="popup-row"><span>Letters received</span><span class="popup-val">${p.letters_received.toLocaleString()}</span></div>
-    <div class="popup-row"><span>Country</span><span class="popup-val">${p.country}</span></div>
+    <div class="popup-row"><span>Country</span><span class="popup-val">${escText(p.country)}</span></div>
     <div class="popup-row"><span>Active years</span><span class="popup-val">${p.year_first || '?'} – ${p.year_last || '?'}</span></div>
-    ${p.notes ? `<div class="popup-sub">📝 ${p.notes}</div>` : ''}
-    ${sendersHtml ? `<div class="popup-sub">${sendersHtml}</div>` : ''}
+    ${p.notes ? `<div class="popup-sub">📝 ${escText(p.notes)}</div>` : ''}
+    ${sendersInline ? `<div class="popup-sub">${sendersInline}</div>` : ''}
+    ${recipientsInline ? `<div class="popup-sub">${recipientsInline}</div>` : ''}
   `;
 
-  updateInfoPanel(p.name_english, [
-    ['Letters sent', p.letters_sent.toLocaleString()],
-    ['Letters received', p.letters_received.toLocaleString()],
-    ['Country', p.country],
-    ['Active', `${p.year_first} – ${p.year_last}`],
-  ]);
+  // Sidebar info panel: full scrollable lists below the summary stats.
+  const panel = document.getElementById('info-panel');
+  panel.innerHTML =
+    `<h3>${escText(p.name_english)}</h3>` +
+    [
+      ['Letters sent', p.letters_sent.toLocaleString()],
+      ['Letters received', p.letters_received.toLocaleString()],
+      ['Country', escText(p.country)],
+      ['Active', `${p.year_first || '?'} – ${p.year_last || '?'}`],
+    ].map(([k, v]) => `<div class="stat-row"><span>${k}</span><span class="stat-val">${v}</span></div>`).join('') +
+    panelPeopleList(`Senders from ${escText(p.name_english)}`,    senders) +
+    panelPeopleList(`Recipients at ${escText(p.name_english)}`, recipients);
 
   popup.setLngLat(lngLat).setHTML(html).addTo(map);
   setOpenSelection({ kind: 'city', name: p.name_datini });
@@ -1308,7 +2084,7 @@ function showSeasonalRoutePopup(p, lngLat) {
 // ═══════════════════════════════════════════════════════════════
 function setupInteractions() {
   // Click handlers — cities first (higher priority)
-  ['cities-bubbles', 'temporal-circles'].forEach(layer => {
+  ['cities-bubbles', 'temporal-circles', 'trajectory-active', 'trajectory-footprint'].forEach(layer => {
     map.on('click', layer, e => {
       e.preventDefault();
       showCityPopup(e.features[0].properties, e.lngLat);
@@ -1332,6 +2108,21 @@ function setupInteractions() {
   });
   map.on('mouseenter', 'arcs-seasonal', () => map.getCanvas().style.cursor = 'crosshair');
   map.on('mouseleave', 'arcs-seasonal', () => map.getCanvas().style.cursor = '');
+
+  map.on('click', 'career-path-lines', e => {
+    if (e.defaultPrevented) return;
+    const p = e.features[0].properties;
+    const html = `
+      <div class="popup-title">Move ${p.index}</div>
+      <div class="popup-row"><span>From</span><span class="popup-val">${escText(p.from_en)}</span></div>
+      <div class="popup-row"><span>To</span><span class="popup-val">${escText(p.to_en)}</span></div>
+      <div class="popup-row"><span>Years</span><span class="popup-val">${p.from_year} → ${p.to_year}</span></div>
+      <div class="popup-sub">Inferred from ${escText(trajectoryPerson || '')}'s active cities by year.</div>
+    `;
+    popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  });
+  map.on('mouseenter', 'career-path-lines', () => map.getCanvas().style.cursor = 'crosshair');
+  map.on('mouseleave', 'career-path-lines', () => map.getCanvas().style.cursor = '');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1364,6 +2155,128 @@ function onYearChange(val) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  PERSON TRAJECTORY MODE
+// ═══════════════════════════════════════════════════════════════
+function setTrajectoryPerson(name, opts = {}) {
+  if (!correspondentsData || !correspondentsData[name]) return;
+  trajectoryPerson = name;
+  const range = trajectoryYearRange(name);
+  if (range) {
+    if (trajectoryYear == null || trajectoryYear < range.lo || trajectoryYear > range.hi) {
+      trajectoryYear = range.lo;
+    }
+  } else {
+    trajectoryYear = null;
+  }
+  refreshTrajectoryUI();
+  refreshTrajectorySource();
+  if (opts.fitBounds !== false) fitTrajectoryBounds();
+  writeHash();
+}
+
+function clearTrajectory() {
+  trajectoryPerson = null;
+  trajectoryYear = null;
+  refreshTrajectoryUI();
+  refreshTrajectorySource();
+  writeHash();
+}
+
+function onTrajectoryYearChange(val) {
+  trajectoryYear = parseInt(val, 10);
+  document.getElementById('trajectory-year-val').textContent = trajectoryYear;
+  refreshTrajectorySource();
+  updateTrajectoryYearSummary();
+  writeHash();
+}
+
+function refreshTrajectoryUI() {
+  const empty   = document.getElementById('trajectory-empty');
+  const active  = document.getElementById('trajectory-active');
+  if (!trajectoryPerson) {
+    empty.style.display = '';
+    active.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  active.style.display = '';
+  document.getElementById('trajectory-name').textContent = trajectoryPerson;
+  const data = correspondentsData[trajectoryPerson];
+  const aliases = (data.aliases || []);
+  const aliasEl = document.getElementById('trajectory-aliases');
+  aliasEl.textContent = aliases.length
+    ? `Also: ${aliases.slice(0, 3).join('; ')}${aliases.length > 3 ? ` (+${aliases.length - 3} more)` : ''}`
+    : '';
+  const range = trajectoryYearRange(trajectoryPerson);
+  const slider = document.getElementById('trajectory-year-slider');
+  if (range) {
+    slider.min = range.lo;
+    slider.max = range.hi;
+    slider.value = trajectoryYear;
+    document.getElementById('trajectory-year-val').textContent = trajectoryYear;
+  }
+  updateTrajectoryYearSummary();
+}
+
+function updateTrajectoryYearSummary() {
+  const el = document.getElementById('trajectory-year-summary');
+  if (!trajectoryPerson || trajectoryYear == null) { el.textContent = ''; return; }
+  const traj = correspondentsData[trajectoryPerson].trajectory || [];
+  const cities = traj.filter(([y]) => y === trajectoryYear).map(([, c, n]) => ({ city: c, n }));
+  if (!cities.length) {
+    el.textContent = `No recorded activity in ${trajectoryYear}.`;
+    return;
+  }
+  cities.sort((a, b) => b.n - a.n);
+  const top = cities.slice(0, 3).map(x => {
+    const f = citiesData.features.find(ft => ft.properties.name_datini === x.city);
+    const label = f ? f.properties.name_english : x.city;
+    return `${label} (${x.n})`;
+  }).join(', ');
+  const more = cities.length > 3 ? `, +${cities.length - 3} more` : '';
+  el.textContent = `${trajectoryYear}: ${top}${more}`;
+}
+
+function refreshTrajectorySource() {
+  if (map.getSource('trajectory-src')) {
+    map.getSource('trajectory-src').setData(buildTrajectoryGeoJSON(trajectoryPerson, trajectoryYear));
+  }
+  if (map.getSource('career-path-src')) {
+    map.getSource('career-path-src').setData(buildCareerPathGeoJSON(trajectoryPerson));
+  }
+}
+
+function trackCurrentPersonOnMap() {
+  if (!openPerson) return;
+  const name = openPerson;
+  closePersonModal();
+  setMode('trajectory');
+  setTrajectoryPerson(name);
+}
+
+function fitTrajectoryBounds() {
+  if (!trajectoryPerson) return;
+  const data = correspondentsData[trajectoryPerson];
+  if (!data || !data.trajectory) return;
+  const coords = [];
+  const seen = new Set();
+  for (const [, city] of data.trajectory) {
+    if (seen.has(city)) continue;
+    seen.add(city);
+    const f = citiesData.features.find(ft => ft.properties.name_datini === city);
+    if (f) coords.push(f.geometry.coordinates);
+  }
+  if (!coords.length) return;
+  if (coords.length === 1) {
+    map.flyTo({ center: coords[0], zoom: Math.max(map.getZoom(), 5.5), duration: 700 });
+    return;
+  }
+  let minX =  Infinity, minY =  Infinity, maxX = -Infinity, maxY = -Infinity;
+  coords.forEach(([x, y]) => { if (x<minX) minX=x; if (y<minY) minY=y; if (x>maxX) maxX=x; if (y>maxY) maxY=y; });
+  map.fitBounds([[minX, minY], [maxX, maxY]], { padding: { top: 60, bottom: 60, left: 380, right: 60 }, duration: 700, maxZoom: 6.5 });
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  SHARE & EXPORT
 // ═══════════════════════════════════════════════════════════════
 function showShareFeedback(msg) {
@@ -1393,28 +2306,343 @@ async function copyShareLink() {
 
 // Re-open a popup from hash state (used on initial load to restore shared view).
 function replaySelection(hash) {
-  if (!hash.sel) return;
   if (hash.sel === 'city' && hash.name) {
     const f = citiesData.features.find(ft => ft.properties.name_datini === hash.name);
-    if (!f) return;
-    const [lng, lat] = f.geometry.coordinates;
-    showCityPopup(f.properties, { lng, lat });
+    if (f) {
+      const [lng, lat] = f.geometry.coordinates;
+      showCityPopup(f.properties, { lng, lat });
+    }
   } else if (hash.sel === 'route' && hash.from && hash.to) {
     const f = routesData.features.find(ft =>
       ft.properties.origin === hash.from && ft.properties.destination === hash.to);
-    if (!f) return;
-    const p = f.properties;
-    showRoutePopup(p, { lng: (p.origin_lng + p.dest_lng) / 2,
-                        lat: (p.origin_lat + p.dest_lat) / 2 });
+    if (f) {
+      const p = f.properties;
+      showRoutePopup(p, { lng: (p.origin_lng + p.dest_lng) / 2,
+                          lat: (p.origin_lat + p.dest_lat) / 2 });
+    }
   } else if (hash.sel === 'seasonal' && hash.from && hash.to) {
     const f = buildSeasonalArcGeoJSON(currentMonth).features.find(ft =>
       ft.properties.origin === hash.from && ft.properties.destination === hash.to);
-    if (!f) return;
-    const p = f.properties;
-    showSeasonalRoutePopup(p, { lng: (p.origin_lng + p.dest_lng) / 2,
-                                lat: (p.origin_lat + p.dest_lat) / 2 });
+    if (f) {
+      const p = f.properties;
+      showSeasonalRoutePopup(p, { lng: (p.origin_lng + p.dest_lng) / 2,
+                                  lat: (p.origin_lat + p.dest_lat) / 2 });
+    }
   }
+  if (hash.person) openPersonModal(hash.person);
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  SENDER EGO-NETWORK MODAL  (D3 force-directed graph)
+// ═══════════════════════════════════════════════════════════════
+function cityLookup(name) {
+  return citiesData.features.find(f => f.properties.name_datini === name);
+}
+
+function openPersonModal(personName) {
+  if (!correspondentsData) return;
+  const data = correspondentsData[personName];
+  const modal   = document.getElementById('sender-modal');
+  const title   = document.getElementById('sender-modal-title');
+  const aliases = document.getElementById('sender-modal-aliases');
+  const meta    = document.getElementById('sender-modal-meta');
+  const empty   = document.getElementById('sender-modal-empty');
+  const svg     = document.getElementById('sender-graph');
+  const track   = document.getElementById('sender-modal-track');
+
+  title.textContent = personName;
+  aliases.innerHTML = '';
+  track.style.display = (data && data.trajectory && data.trajectory.length) ? '' : 'none';
+  openPerson = personName;
+  modal.classList.add('open');
+  writeHash();
+
+  if (!data) {
+    meta.textContent = '';
+    svg.style.display = 'none';
+    empty.style.display = 'flex';
+    empty.textContent = `No ego-network data available for "${personName}" (fewer than 3 letters in the corpus).`;
+    return;
+  }
+
+  const yrs = (data.year_first && data.year_last)
+    ? (data.year_first === data.year_last ? `${data.year_first}` : `${data.year_first}–${data.year_last}`)
+    : '';
+  const nRoutes = data.sent.length + data.received.length;
+  meta.textContent =
+    `${data.sent_total.toLocaleString()} sent · ${data.received_total.toLocaleString()} received` +
+    `${yrs ? ' · ' + yrs : ''} · ${nRoutes} routes`;
+
+  if (data.aliases && data.aliases.length) {
+    aliases.innerHTML = '<b>Also recorded as</b>' +
+      data.aliases.map(a => escText(a)).join('; ');
+  }
+
+  empty.style.display = 'none';
+  svg.style.display = 'block';
+  renderEgoNetwork(personName, data);
+}
+
+function closePersonModal() {
+  const modal = document.getElementById('sender-modal');
+  modal.classList.remove('open');
+  if (openPerson !== null) { openPerson = null; writeHash(); }
+  d3.select('#sender-graph').selectAll('*').interrupt().remove();
+}
+
+function renderEgoNetwork(personName, data) {
+  const svgEl = document.getElementById('sender-graph');
+  const w = svgEl.clientWidth;
+  const h = svgEl.clientHeight;
+
+  // Aggregate per-city volumes across both sent and received edges.
+  const nodeMap = new Map();
+  function bumpNode(name, amount) {
+    if (!nodeMap.has(name)) {
+      const cf = cityLookup(name);
+      nodeMap.set(name, {
+        id: name,
+        label: cf ? cf.properties.name_english : name,
+        is_fondaco: cf ? !!cf.properties.is_fondaco : false,
+        coords: cf ? cf.geometry.coordinates : null,
+        total: 0,
+      });
+    }
+    nodeMap.get(name).total += amount;
+  }
+  data.sent.forEach(e => { bumpNode(e.from, e.count); bumpNode(e.to, e.count); });
+  data.received.forEach(e => { bumpNode(e.from, e.count); bumpNode(e.to, e.count); });
+
+  const nodes = [...nodeMap.values()];
+  const links = [
+    ...data.sent.map(e     => ({ source: e.from, target: e.to, count: e.count, kind: 'sent' })),
+    ...data.received.map(e => ({ source: e.from, target: e.to, count: e.count, kind: 'received' })),
+  ];
+
+  const maxNodeTotal = d3.max(nodes, n => n.total) || 1;
+  const maxEdgeCount = d3.max(links, l => l.count) || 1;
+
+  const radius = d3.scaleSqrt().domain([0, maxNodeTotal]).range([5, 32]);
+  const stroke = d3.scaleSqrt().domain([0, maxEdgeCount]).range([1, 9]);
+
+  const SENT_COLOR     = '#f0d060';
+  const RECEIVED_COLOR = '#40c8e0';
+
+  const svg = d3.select('#sender-graph');
+  svg.selectAll('*').remove();
+  svg.attr('viewBox', `0 0 ${w} ${h}`);
+
+  const defs = svg.append('defs');
+  [['ego-arrow-sent', SENT_COLOR], ['ego-arrow-received', RECEIVED_COLOR]].forEach(([id, col]) => {
+    defs.append('marker')
+      .attr('id', id)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 8).attr('refY', 0)
+      .attr('markerWidth', 6).attr('markerHeight', 6)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5')
+      .attr('fill', col)
+      .attr('fill-opacity', 0.65);
+  });
+
+  // In-modal legend (top-left corner of the SVG)
+  const legend = svg.append('g').attr('transform', 'translate(14, 14)');
+  const legendItems = [
+    { label: `Sent by ${truncate(personName, 32)}`,     color: SENT_COLOR },
+    { label: `Received by ${truncate(personName, 30)}`, color: RECEIVED_COLOR },
+  ];
+  legendItems.forEach((it, i) => {
+    const g = legend.append('g').attr('transform', `translate(0, ${i * 18})`);
+    g.append('line')
+      .attr('x1', 0).attr('x2', 22).attr('y1', 6).attr('y2', 6)
+      .attr('stroke', it.color).attr('stroke-width', 3).attr('stroke-opacity', 0.75);
+    g.append('text')
+      .attr('x', 28).attr('y', 10)
+      .attr('font-family', 'Georgia, serif').attr('font-size', '11px')
+      .attr('fill', '#c0b0e0').text(it.label);
+  });
+
+  const linkSel = svg.append('g')
+    .selectAll('line')
+    .data(links)
+    .enter().append('line')
+    .attr('class', d => `ego-edge ego-edge-${d.kind}`)
+    .attr('stroke', d => d.kind === 'sent' ? SENT_COLOR : RECEIVED_COLOR)
+    .attr('stroke-opacity', 0.55)
+    .attr('stroke-width', d => stroke(d.count))
+    .attr('marker-end', d => `url(#ego-arrow-${d.kind})`);
+
+  const nodeSel = svg.append('g')
+    .selectAll('g')
+    .data(nodes, d => d.id)
+    .enter().append('g')
+    .attr('class', d => 'ego-node' + (d.is_fondaco ? ' fondaco' : ''))
+    .style('cursor', 'pointer')
+    .on('click', (event, d) => {
+      closePersonModal();
+      setFocusedCity(d.id);
+      const cf = cityLookup(d.id);
+      if (cf) {
+        map.flyTo({ center: cf.geometry.coordinates, zoom: Math.max(map.getZoom(), 5), duration: 700 });
+        showCityPopup(cf.properties, { lng: cf.geometry.coordinates[0], lat: cf.geometry.coordinates[1] });
+      }
+    });
+
+  nodeSel.append('title')
+    .text(d => `${d.label}\n${d.total.toLocaleString()} letters with this person${d.is_fondaco ? ' · fondaco' : ''}`);
+
+  nodeSel.append('circle')
+    .attr('r', d => radius(d.total))
+    .attr('fill', d => d.is_fondaco ? '#e060a0' : '#60a0e0')
+    .attr('fill-opacity', 0.85)
+    .attr('stroke', '#f0d060')
+    .attr('stroke-width', 1.2);
+
+  nodeSel.append('text')
+    .attr('dy', d => -(radius(d.total) + 4))
+    .text(d => d.label);
+
+  // Seed positions from geographic coords (when available) so the layout is map-ish.
+  const lngs = nodes.filter(n => n.coords).map(n => n.coords[0]);
+  const lats = nodes.filter(n => n.coords).map(n => n.coords[1]);
+  if (lngs.length) {
+    const xS = d3.scaleLinear().domain(d3.extent(lngs)).range([60, w - 60]);
+    const yS = d3.scaleLinear().domain(d3.extent(lats)).range([h - 50, 50]);
+    nodes.forEach(n => {
+      if (n.coords) { n.x = xS(n.coords[0]); n.y = yS(n.coords[1]); }
+      else          { n.x = w / 2; n.y = h / 2; }
+    });
+  }
+
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => 80 + 80 * (1 - d.count / maxEdgeCount)).strength(0.4))
+    .force('charge', d3.forceManyBody().strength(-180))
+    .force('center', d3.forceCenter(w / 2, h / 2).strength(0.05))
+    .force('collide', d3.forceCollide().radius(d => radius(d.total) + 14))
+    .alpha(0.9)
+    .on('tick', () => {
+      linkSel
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => {
+          const r = radius(d.target.total) + 6;
+          const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+          const len = Math.sqrt(dx * dx + dy * dy) || 1;
+          return d.target.x - dx / len * r;
+        })
+        .attr('y2', d => {
+          const r = radius(d.target.total) + 6;
+          const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+          const len = Math.sqrt(dx * dx + dy * dy) || 1;
+          return d.target.y - dy / len * r;
+        });
+      nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+  const drag = d3.drag()
+    .on('start', (event, d) => { if (!event.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+    .on('drag',  (event, d) => { d.fx = event.x; d.fy = event.y; })
+    .on('end',   (event, d) => { if (!event.active) sim.alphaTarget(0); d.fx = null; d.fy = null; });
+  nodeSel.call(drag);
+}
+
+function truncate(s, n) {
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ABOUT MODAL
+// ═══════════════════════════════════════════════════════════════
+function openAboutModal()  { document.getElementById('about-modal').classList.add('open'); }
+function closeAboutModal() { document.getElementById('about-modal').classList.remove('open'); }
+function isAboutOpen()     { return document.getElementById('about-modal').classList.contains('open'); }
+
+// ═══════════════════════════════════════════════════════════════
+//  PERSON SEARCH
+// ═══════════════════════════════════════════════════════════════
+const SEARCH_MAX_RESULTS = 30;
+let searchDebounceId = null;
+
+function onPersonSearchInput(value) {
+  document.getElementById('person-search-clear').style.display = value ? 'block' : 'none';
+  clearTimeout(searchDebounceId);
+  searchDebounceId = setTimeout(() => runPersonSearch(value), 80);
+}
+
+function clearPersonSearch() {
+  const input = document.getElementById('person-search');
+  input.value = '';
+  document.getElementById('person-search-clear').style.display = 'none';
+  runPersonSearch('');
+  input.focus();
+}
+
+function runPersonSearch(rawQuery) {
+  const q = rawQuery.trim().toUpperCase();
+  const resultsEl = document.getElementById('person-search-results');
+  if (!q || !personSearchIndex) {
+    resultsEl.classList.remove('has-results');
+    resultsEl.innerHTML = '';
+    return;
+  }
+  const matches = personSearchIndex
+    .filter(e => e.haystack.includes(q))
+    .map(e => ({
+      ...e,
+      // True if the canonical name doesn't itself contain the query — meaning
+      // the hit came from one of the aliases. Worth flagging in the result row
+      // so the user understands why a "FRATELLI"-search returned a name that
+      // doesn't visibly contain the word.
+      aliasOnly: e.hasAliases && !e.name.includes(q),
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  resultsEl.classList.add('has-results');
+  if (!matches.length) {
+    resultsEl.innerHTML = '<div class="search-empty">No correspondents match this query.</div>';
+    return;
+  }
+  const shown = matches.slice(0, SEARCH_MAX_RESULTS);
+  const tail = matches.length > SEARCH_MAX_RESULTS
+    ? `<div class="search-empty">+${matches.length - SEARCH_MAX_RESULTS} more — refine your query</div>`
+    : '';
+  resultsEl.innerHTML = shown.map(m =>
+    `<div class="search-result" role="option" data-person="${escAttr(m.name)}">
+      <span class="name">${escText(m.name)}${m.aliasOnly ? ' <em style="color:#6050a0;font-style:normal;font-size:0.65rem;">· via alias</em>' : ''}</span>
+      <span class="meta">${m.sent.toLocaleString()}↗ &nbsp; ${m.recv.toLocaleString()}↙</span>
+    </div>`
+  ).join('') + tail;
+}
+
+// Close on Escape (closes the topmost open layer)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (isAboutOpen())  { closeAboutModal(); return; }
+  if (openPerson)     { closePersonModal(); return; }
+  if (document.getElementById('person-search-results').classList.contains('has-results')) {
+    clearPersonSearch();
+  }
+});
+// Delegated handlers: backdrop close, sender-link click, search-result click
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'sender-modal') { closePersonModal(); return; }
+  if (e.target && e.target.id === 'about-modal')  { closeAboutModal();  return; }
+  const result = e.target.closest && e.target.closest('.search-result');
+  if (result && result.dataset.person) {
+    // In trajectory mode, search picks the tracked person (no modal).
+    if (currentMode === 'trajectory') {
+      setTrajectoryPerson(result.dataset.person);
+    } else {
+      openPersonModal(result.dataset.person);
+    }
+    return;
+  }
+  const link = e.target.closest && e.target.closest('.sender-link');
+  if (link && link.dataset.person) {
+    openPersonModal(link.dataset.person);
+  }
+});
 
 // Sync sidebar controls to global state (used after parsing hash on load).
 function syncControlsToState() {
@@ -1437,6 +2665,11 @@ map.on('load', async () => {
   syncControlsToState();
   drawLayers();
   if (focusedCity) applyCityFocus();
+  if (initialHash.track && correspondentsData[initialHash.track]) {
+    setTrajectoryPerson(initialHash.track, { fitBounds: !initialHash.map });
+  } else {
+    refreshTrajectoryUI();
+  }
   setupInteractions();
   map.on('moveend', writeHash);
   window.addEventListener('hashchange', () => {
