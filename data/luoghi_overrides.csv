@@ -6,6 +6,7 @@ Berre-l'Étang,place:gn:3033241,Berre-l'Étang,5.17044,43.47809,auto-exonym,vari
 Bonifacio,,"Bonifacio, Corsica",9.1576,41.3873,manual,WHG has no Corsican Bonifacio (only Philippines homonyms). Coordinates from Wikipedia.
 Canet-en Roussillon,place:tm:21222,Canet-en-Roussillon,3.009898,42.706091,auto-exonym,variation: Canet-en-Roussillon
 Cherchel,place:gn:2501440,Cherchell,2.19083,36.605,auto-exonym,variation: Cherchell
+Cipro,place:ohm:r2800989,Cyprus (Nicosia as central reference),33.3823,35.1856,manual,"WHG fuzzy-matched Cipro to Skripovo, Pskov Oblast (Russia) — the source PDF cell ""Cipro-Grecia o Turchia"" has no usable ISO so no country filter blocks the homonym. WHG does index Cyprus as place:ohm:r2800989 but with no centroid. Using Nicosia. Famagosta is a separate gazetteer entry for east-coast Cyprus voyages."
 Costa di Catalogna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Costiera di Barcellona,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Costiera di Catalogna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.

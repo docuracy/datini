@@ -81,7 +81,6 @@ best_guess,Castellana,porto,ES,La Castellana,place:osm:n1241512128,100,-5.894651
 best_guess,Castiglia,porto,ES,Castellgalí,place:wd:Q16686,100,1.837804,41.673277
 best_guess,Catalogna,porto,ES,Catalonia,place:wd:Q5705,100,1.566667,41.85
 best_guess,Chio,porto,GR,Chios,place:wd:Q160483,100,26.016667,38.4
-best_guess,Cipro,porto,,Скрипово,place:osm:n1215320578,100,29.103014,57.686105
 best_guess,Citèra,porto,GR,Kythira,place:wd:Q207239,100,22.9975,36.2575
 best_guess,Ciutadella,porto,ES,la Ciutadella,place:osm:n1241597732,100,3.147152,41.894786
 best_guess,Dragonera pressi,porto,ES,Rec d’Andorra,place:gn:3041564,100,1.5254,42.5178
@@ -314,6 +313,7 @@ override,Berre-l'Étang,porto,FR,Berre-l'Étang,place:gn:3033241,auto-exonym,5.1
 override,Bonifacio,porto,FR,"Bonifacio, Corsica",,manual,9.1576,41.3873
 override,Canet-en Roussillon,porto,FR,Canet-en-Roussillon,place:tm:21222,auto-exonym,3.009898,42.706091
 override,Cherchel,porto,DZ,Cherchell,place:gn:2501440,auto-exonym,2.19083,36.605
+override,Cipro,porto,,Cyprus (Nicosia as central reference),place:ohm:r2800989,manual,33.3823,35.1856
 override,Golfo di Narbona,porto,FR,Narbonne,place:gn:12319315,auto-exonym,6.78562,43.60465
 override,Hyères;Brégançon,porto,FR,Hyères,place:gn:12519480,auto-exonym,5.85746,45.5271
 override,Inghilterra,regione,,London (representative point for English voyages),place:227562,manual,-0.1257,51.5085
