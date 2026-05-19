@@ -1,0 +1,46 @@
+name,whg_id,whg_name,lng,lat,source,notes
+Altoluogo,,Ayasoluk / Selçuk (medieval port of Ephesus),27.3676,37.9495,manual,"Medieval Italian Altoluogo (altum locum) = Ayasoluk/Selçuk, the silted-up successor port adjacent to ancient Ephesus. WHG match was Tavuklu (eastern Turkey) which is unrelated."
+Amone,place:tgn:7007953,Mahón,4.25,39.883333,auto-exonym,variation: Mahón
+Barberia,,Barbary Coast (Tunis as representative point),10.1815,36.8065,manual,Source PDF country tail is Tunisia. Tunis is the canonical Barbary port for that country tag; the earlier interior Algeria/Sahara override was wrong.
+Berre-l'Étang,place:gn:3033241,Berre-l'Étang,5.17044,43.47809,auto-exonym,variation: Berre-l'Étang
+Bonifacio,,"Bonifacio, Corsica",9.1576,41.3873,manual,WHG has no Corsican Bonifacio (only Philippines homonyms). Coordinates from Wikipedia.
+Canet-en Roussillon,place:tm:21222,Canet-en-Roussillon,3.009898,42.706091,auto-exonym,variation: Canet-en-Roussillon
+Cherchel,place:gn:2501440,Cherchell,2.19083,36.605,auto-exonym,variation: Cherchell
+Costa di Catalogna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Costiera di Barcellona,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Costiera di Catalogna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Golfo del Leone,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Golfo di Narbona,place:gn:12319315,Narbonne,6.78562,43.60465,auto-exonym,variation: Narbonne
+Hyères;Brégançon,place:gn:12519480,Hyères,5.85746,45.5271,auto-exonym,variation: Hyères
+Inghilterra,place:227562,London (representative point for English voyages),-0.1257,51.5085,manual,"WHG matched the England polygon (centroid in central rural England). All 23 voyages tagged Inghilterra would have docked at an English port — London being the canonical destination, and the only separately-listed English port (Londra) gets zero voyages in the source."
+Isola S. Margherita,,"Île Sainte-Marguerite, Cannes",7.0508,43.5217,manual,WHG returns the island with Country=IT despite being in FR; manually set to Cannes coords.
+Isola di Marsiglia,place:wd:Q1464953,Frioul Islands,5.306647,43.275487,manual,Frioul Islands off Marseille. WHG default match was a Frioul POI in Lyon (osm:n2686481302).
+Levante,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mare del Nord,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Bretagna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Cartagena,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Gaeta,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Galizia,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Malta,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Palamós,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Portogallo,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Provenza,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Romania,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Sapienza,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Sicilia,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Spagna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Tolone,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mari di Tripoli,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Marsiglia pressi,place:gn:2995469,Marseille,5.38107,43.29695,auto-exonym,variation: Marseille
+Mediterraneo,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Mezzogiorno,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Palma di Maiorca,place:tgn:7008232,Palma de Mallorca,2.65,39.566667,auto-exonym,variation: Palma de Mallorca
+Ponente,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Porto Alessandria d'Egitto,place:ohm:n2110541901,Alexandria,29.915669,31.200089,auto-exonym,variation: Alexandria
+Porto Magno,place:wd:Q18509707,Magno,10.19937,45.70665,auto-strip-porto,variation: Magno
+Porto Pisano,place:wd:Q3909173,Porto Pisano,10.346667,43.679722,auto-exonym,variation: Porto Pisano
+Porto Torres,place:wd:Q18497102,Torres,12.36142,46.16747,auto-strip-porto,variation: Torres
+Porto Venere,place:wd:Q18427108,Venere,13.64549,41.99101,auto-strip-porto,variation: Venere
+Portofino,place:wd:Q33707987,Portofino,9.20937,44.30374,auto-exonym,variation: Portofino
+Romania,,Medieval Romania (Byzantine/Aegean Greek territories),23.7275,37.9838,manual,In medieval Italian merchant usage Romania = the Latin/Byzantine Empire territories (mostly modern Greece and the Aegean). WHG matched the modern country (Transylvania). Athens is used as a representative point for the source PDF country tag Grecia.
+n.s.,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.

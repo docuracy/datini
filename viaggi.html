@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datini Voyages — Mediterranean Shipping (1379–1492)</title>
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='10' fill='%231a0a3e'/><path d='M10 42 Q32 28 54 42' fill='none' stroke='%23f0d060' stroke-width='4' stroke-linecap='round'/><circle cx='10' cy='42' r='5' fill='%23f0d060'/><circle cx='54' cy='42' r='5' fill='%23f0d060'/></svg>" />
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #0d0d18;
+      color: #e8dfc8;
+      height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 340px;
+      flex-shrink: 0;
+      background: rgba(10, 10, 22, 0.97);
+      border-right: 1px solid #3a3060;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    #sidebar-header {
+      position: relative;
+      background: linear-gradient(135deg, #2a1a5e, #1a0a3e);
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid #4a3a80;
+    }
+
+    #sidebar-header h1 {
+      font-size: 1.05rem;
+      color: #f0d060;
+      letter-spacing: 0.03em;
+      line-height: 1.3;
+    }
+
+    #sidebar-header p {
+      font-size: 0.72rem;
+      color: #a090c0;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    /* ── Header action buttons (cross-link + About) ── */
+    .header-actions {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+    }
+    .header-actions a,
+    .header-actions button {
+      background: transparent;
+      border: 1px solid #6050a0;
+      border-radius: 4px;
+      color: #d0c0f0;
+      font-family: inherit;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+    .header-actions a:hover,
+    .header-actions button:hover { background: #3a2a70; color: #f0d060; }
+
+    #sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 20px;
+    }
+
+    .section { margin-bottom: 18px; }
+    .section-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8070b0;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #2a2040;
+    }
+
+    /* ── Mode buttons ── */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .mode-btn {
+      padding: 8px 10px;
+      background: #1a1430;
+      border: 1px solid #3a2a60;
+      border-radius: 6px;
+      color: #c0b0e0;
+      font-size: 0.76rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .mode-btn:hover { background: #2a2050; border-color: #6050a0; }
+    .mode-btn.active {
+      background: #3a2070;
+      border-color: #a080e0;
+      color: #f0e080;
+    }
+    .mode-btn .icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+
+    /* ── Filters ── */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: #12102a;
+      border: 1px solid #2a2040;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      color: #c0b0e0;
+      margin-bottom: 10px;
+    }
+    .check-row:hover { border-color: #4a3a80; }
+    .check-row input { accent-color: #8060d0; }
+    .check-row .count {
+      margin-left: auto;
+      color: #8070b0;
+      font-size: 0.7rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .slider-row { margin-bottom: 10px; }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: #b0a0d0;
+      margin-bottom: 4px;
+    }
+    .slider-label span { color: #f0d060; font-weight: bold; }
+    input[type=range] {
+      width: 100%;
+      accent-color: #8060d0;
+      cursor: pointer;
+    }
+
+    /* ── Dual-handle year range slider ── */
+    .range-wrap {
+      position: relative;
+      height: 22px;
+      margin: 6px 0 0;
+    }
+    .range-track {
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 3px;
+      margin-top: -1.5px;
+      background: #2a2040;
+      border-radius: 2px;
+    }
+    .range-band {
+      position: absolute;
+      top: 50%;
+      height: 3px;
+      margin-top: -1.5px;
+      background: linear-gradient(to right, #8060d0, #a080e0);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .range-wrap input[type=range] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 22px;
+      margin: 0;
+      background: transparent;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    /* Zero-height runnable-track is the cleanest cross-browser way to
+       centre the thumb on a separately-drawn track div: the thumb
+       positions itself relative to the input's vertical centre, and we
+       pull it up by half its height via margin-top. */
+    .range-wrap input[type=range]::-webkit-slider-runnable-track {
+      background: transparent;
+      border: none;
+      height: 0;
+    }
+    .range-wrap input[type=range]::-moz-range-track {
+      background: transparent;
+      border: none;
+      height: 0;
+    }
+    .range-wrap input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #f0d060;
+      border: 2px solid #1a0a3e;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      pointer-events: auto;
+      cursor: pointer;
+      margin-top: -7px;   /* half thumb height — centres on the track line */
+    }
+    .range-wrap input[type=range]::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #f0d060;
+      border: 2px solid #1a0a3e;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      pointer-events: auto;
+      cursor: pointer;
+      /* Firefox auto-centres the thumb on its track; no margin needed. */
+    }
+    .range-wrap input[type=range]:focus { outline: none; }
+    .range-extent {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: #6050a0;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Vessel type chip selector ── */
+    #vessel-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      max-height: 130px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .v-chip {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      /* `--cat-color` is set per-chip to match the route arc colour for
+         that vessel's category, so the filter and the map agree at a
+         glance. The chip uses it for its left swatch + active background. */
+      border: 1px solid var(--cat-color, #3a2a60);
+      background: #1a1430;
+      color: #c0b0e0;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .v-chip::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--cat-color, #6050a0);
+      flex-shrink: 0;
+    }
+    .v-chip:hover {
+      background: color-mix(in srgb, var(--cat-color, #6050a0) 18%, #1a1430);
+    }
+    .v-chip.on {
+      background: color-mix(in srgb, var(--cat-color, #6050a0) 38%, #1a1430);
+      color: #f0e080;
+    }
+    .v-chip .v-count {
+      color: #8070b0;
+      margin-left: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .v-chip.on .v-count { color: #f0d060; }
+
+    /* ── Info Panel ── */
+    #info-panel {
+      background: #12102a;
+      border: 1px solid #3a2a60;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 60px;
+      font-size: 0.78rem;
+      color: #c0b0e0;
+      line-height: 1.5;
+    }
+    #info-panel h3 { color: #f0d060; font-size: 0.9rem; margin-bottom: 6px; }
+    #info-panel .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      border-bottom: 1px solid #2a2040;
+    }
+    #info-panel .stat-row:last-child { border-bottom: none; }
+    #info-panel .stat-val { color: #f0d060; }
+    .hint {
+      font-size: 0.7rem;
+      color: #6050a0;
+      font-style: italic;
+      text-align: center;
+      padding: 4px 0;
+    }
+
+    .voyage-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 8px;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #4a3a80 #1a1430;
+    }
+    .voyage-list::-webkit-scrollbar { width: 8px; }
+    .voyage-list::-webkit-scrollbar-track { background: #1a1430; }
+    .voyage-list::-webkit-scrollbar-thumb { background: #4a3a80; border-radius: 4px; }
+    .voyage-row {
+      padding: 5px 0;
+      border-bottom: 1px solid #20183a;
+      font-size: 0.72rem;
+      line-height: 1.4;
+    }
+    .voyage-row:last-child { border-bottom: none; }
+    .voyage-row .v-date {
+      color: #f0d060;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.7rem;
+    }
+    .voyage-row .v-dur {
+      color: #a080e0;
+      margin-left: 6px;
+      font-size: 0.7rem;
+    }
+    .voyage-row .v-ship { color: #b0a0d0; font-size: 0.7rem; }
+    .voyage-row .v-meta { color: #8070b0; font-size: 0.66rem; font-style: italic; }
+
+    /* ── Legend ── */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 0.74rem;
+      color: #b0a0d0;
+    }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .legend-line   { width: 28px; height: 3px;  border-radius: 2px; flex-shrink: 0; }
+    .legend-gradient {
+      width: 100%;
+      height: 10px;
+      border-radius: 4px;
+      margin: 4px 0 2px;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: #8070a0;
+    }
+
+    /* ── Stats bar ── */
+    #stats-bar {
+      padding: 8px 14px;
+      background: #0a0818;
+      border-top: 1px solid #2a2040;
+      font-size: 0.7rem;
+      color: #6050a0;
+      display: flex;
+      justify-content: space-between;
+    }
+    #stats-bar span { color: #f0d060; }
+
+    /* ── Map ── */
+    #map { flex: 1; position: relative; }
+
+    #loading {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 22, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    #loading.hidden { opacity: 0; }
+    .loader-ring {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #2a2040;
+      border-top-color: #f0d060;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { margin-top: 12px; color: #a090c0; font-size: 0.85rem; }
+
+    /* ── Map popup ── */
+    .maplibregl-popup-content {
+      background: rgba(10, 10, 30, 0.97) !important;
+      border: 1px solid #4a3a80 !important;
+      color: #e0d0f0 !important;
+      font-family: 'Georgia', serif !important;
+      font-size: 0.8rem !important;
+      border-radius: 8px !important;
+      padding: 10px 12px !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.7) !important;
+      max-width: 300px !important;
+    }
+    .maplibregl-popup-tip { border-top-color: #4a3a80 !important; }
+    .maplibregl-popup-close-button { color: #8070b0 !important; font-size: 1rem !important; }
+    .popup-title { color: #f0d060; font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; }
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 0;
+      border-bottom: 1px solid #2a2040;
+    }
+    .popup-row:last-child { border-bottom: none; }
+    .popup-val { color: #f0d060; }
+    .popup-sub {
+      font-size: 0.72rem;
+      color: #8070b0;
+      margin-top: 6px;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    .maplibregl-ctrl-attrib { font-size: 0.6rem !important; }
+
+    /* ── Persistent WHG credit — always-visible scholarly attribution ── */
+    .whg-credit {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px solid #2a2040;
+      border-left: 3px solid #a080e0;
+      border-radius: 4px;
+      background: rgba(20, 15, 40, 0.55);
+      font-size: 0.7rem;
+      color: #a090c0;
+      line-height: 1.5;
+    }
+    .whg-credit strong { color: #d0c0f0; font-weight: normal; letter-spacing: 0.03em; }
+    .whg-credit a { color: #a080e0; text-decoration: underline dotted #6050a0; }
+    .whg-credit a:hover { color: #f0d060; }
+
+    #sidebar-body::-webkit-scrollbar { width: 4px; }
+    #sidebar-body::-webkit-scrollbar-track { background: transparent; }
+    #sidebar-body::-webkit-scrollbar-thumb { background: #3a2a60; border-radius: 2px; }
+
+    /* ── Modal shell (same shape as letters page) ── */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 12, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      background: #15102a;
+      border: 1px solid #4a3a80;
+      border-radius: 8px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      width: min(640px, 94vw);
+      max-height: 90vh;
+    }
+    .modal-header {
+      background: linear-gradient(135deg, #2a1a5e, #1a0a3e);
+      padding: 12px 18px;
+      border-bottom: 1px solid #4a3a80;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .modal-header h2 {
+      font-size: 1rem;
+      color: #f0d060;
+      font-weight: normal;
+      letter-spacing: 0.02em;
+      flex: 1;
+    }
+    .modal-close {
+      background: transparent;
+      border: 1px solid #6050a0;
+      border-radius: 4px;
+      color: #d0c0f0;
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 3px 10px;
+      cursor: pointer;
+    }
+    .modal-close:hover { background: #3a2a70; }
+
+    #about-modal-body {
+      padding: 18px 22px;
+      overflow-y: auto;
+      color: #c0b0e0;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+    #about-modal-body p { margin-bottom: 10px; }
+    #about-modal-body a { color: #a080e0; }
+    #about-modal-body h3 {
+      color: #f0d060;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 14px 0 6px;
+    }
+    #about-modal-body h3:first-child { margin-top: 0; }
+    #about-modal-body strong { color: #e0d0f0; }
+    #about-modal-body ul { margin: 4px 0 10px 18px; }
+    #about-modal-body li { margin-bottom: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─────────────────────────────────────────── -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <h1>⛵ Datini Voyages</h1>
+    <p>Mediterranean shipping from the
+       <a href="https://www.istitutodatini.it/schede/melis/eng/fedmelis.htm" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;">Melis archive</a>
+       · 1379–1492 · 3,393 voyages · 281 ports</p>
+    <div class="header-actions">
+      <a href="index.html">← Letters</a>
+      <button id="about-link" onclick="openAboutModal()" aria-label="About this dataset">ⓘ&nbsp;About</button>
+    </div>
+  </div>
+
+  <div id="sidebar-body">
+
+    <!-- Visualisation Mode -->
+    <div class="section">
+      <div class="section-title">Visualisation Mode</div>
+      <div class="mode-grid">
+        <button class="mode-btn active" data-mode="volume" onclick="setMode('volume')">
+          <span class="icon">🛤</span>Volume
+        </button>
+        <button class="mode-btn" data-mode="duration" onclick="setMode('duration')">
+          <span class="icon">⏱</span>Travel Time
+        </button>
+      </div>
+      <div class="hint" style="text-align:left;margin-top:6px;">
+        Travel Time auto-enables <em>Dated journeys only</em> — duration needs both endpoints.
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="section">
+      <div class="section-title">Filters</div>
+
+      <label class="check-row">
+        <input type="checkbox" id="dated-only" onchange="onDatedOnly(this.checked)">
+        Dated journeys only
+        <span class="count" id="dated-count">—</span>
+      </label>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          Years <span id="year-range-val">1379 – 1492</span>
+        </div>
+        <div class="range-wrap">
+          <div class="range-track"></div>
+          <div class="range-band" id="year-band"></div>
+          <input type="range" id="year-min" min="1379" max="1492" value="1379" step="1"
+                 aria-label="Earliest year" oninput="onYearRange()" />
+          <input type="range" id="year-max" min="1379" max="1492" value="1492" step="1"
+                 aria-label="Latest year" oninput="onYearRange()" />
+        </div>
+        <div class="range-extent"><span>1379</span><span>1492</span></div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Min voyages per route <span id="min-count-val">1</span></div>
+        <input type="range" id="min-count" min="1" max="50" value="1" step="1"
+               oninput="onMinCount(this.value)" />
+      </div>
+
+      <div class="slider-row" style="margin-top:14px;">
+        <div class="slider-label" style="display:block;margin-bottom:6px;">
+          Vessel type
+          <span id="vessel-clear"
+                style="float:right;font-size:0.66rem;color:#8070b0;cursor:pointer;
+                       font-weight:normal;display:none;"
+                onclick="clearVesselFilter()">clear ×</span>
+        </div>
+        <div id="vessel-chips"></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="section" id="legend-section">
+      <div class="section-title">Legend</div>
+      <div id="legend-content"></div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="section">
+      <div class="section-title">Selected Feature</div>
+      <div id="info-panel">
+        <p class="hint">Click a route or port on the map</p>
+      </div>
+    </div>
+
+    <!-- Always-visible WHG attribution -->
+    <div class="whg-credit">
+      <strong>Ports geocoded via the World Historical Gazetteer.</strong>
+      WHG (<a href="https://whgazetteer.org/" target="_blank" rel="noopener">whgazetteer.org</a>)
+      is a free scholarly index over GeoNames, Wikidata, OSM, OHM, Getty TGN
+      and Pleiades, exposed through an open
+      <a href="https://docs.whgazetteer.org/content/technical/apis.html" target="_blank" rel="noopener">Reconciliation API</a>.
+      Highly recommended for any historical-place mapping project.
+    </div>
+
+    <!-- Companion sea-routing tool -->
+    <div class="whg-credit" style="border-left-color:#40c0a0;">
+      <strong>Plausible sea-route plotter:</strong>
+      see
+      <a href="https://github.com/docuracy/Historical_Sea_Routing" target="_blank" rel="noopener">Historical Sea Routing</a>,
+      an online tool that plots navigable paths around coastlines and through
+      historical chokepoints and computes journey times from hull and sail
+      profiles using dynamic principles — useful for visualising what each
+      Datini voyage's straight-line arc on this map actually meant at sea.
+      Its <em>per-vessel-type sailing-time estimates have not yet been
+      calibrated against the Datini voyage durations recorded here.</em>
+    </div>
+  </div>
+
+  <div id="stats-bar">
+    <div>Showing <span id="stat-routes">—</span> routes</div>
+    <div><span id="stat-voyages">—</span> voyages</div>
+  </div>
+</div>
+
+<!-- ─── MAP ──────────────────────────────────────────────── -->
+<div id="map">
+  <div id="loading">
+    <div class="loader-ring"></div>
+    <p>Loading voyages…</p>
+  </div>
+</div>
+
+<!-- ─── ABOUT MODAL ─────────────────────────────────────── -->
+<div id="about-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 id="about-modal-title">About this dataset</h2>
+      <button class="modal-close" onclick="closeAboutModal()" aria-label="Close">×</button>
+    </div>
+    <div id="about-modal-body">
+      <p>
+        3,393 voyages plotted from the <strong>Navigare</strong> database
+        (<em>Navigare. Database di viaggi e imbarcazioni tra XIV e XVI secolo</em>),
+        the digital edition of the working notes (<em>schede di lavoro</em>) compiled
+        by the Italian economic historian
+        <a href="https://www.istitutodatini.it/schede/melis/eng/fedmelis.htm" target="_blank" rel="noopener"><strong>Federigo Melis</strong></a>
+        (1914–1973)
+        on late-medieval Mediterranean shipping.
+      </p>
+
+      <h3>What's recorded</h3>
+      <p>
+        Each entry transcribes a single voyage and (where the underlying documents
+        allow) captures the ship type, ship name and nationality, departure and
+        arrival ports, departure and arrival dates, any port-of-call along the way,
+        the merchandise (<em>merce</em>) carried, the people involved (typically the
+        <em>padrone</em> or merchant agents) and the archival source. Most surviving
+        documents identify a port but not a precise date, so only
+        <strong>513 of the 3,393 voyages</strong> here carry both endpoints —
+        these are the ones that can be filtered to and colour-coded by duration.
+      </p>
+
+      <h3>Source</h3>
+      <p>
+        The Navigare project ingested over <strong>7,000 cards</strong> from Melis's
+        original collection of <strong>14,000+</strong>. The underlying documents are
+        primarily drawn from the Datini Archive in Prato (the same merchant fondaco
+        whose letter network is mapped on the companion
+        <a href="index.html">Letters page</a>), supplemented by other Italian and
+        Mediterranean state archives.
+      </p>
+      <p>
+        Search interface:
+        <a href="https://www.istitutodatini.it/navigare/viaggi/home.htm" target="_blank" rel="noopener">
+          istitutodatini.it/navigare/viaggi
+        </a>
+      </p>
+
+      <h3>World Historical Gazetteer</h3>
+      <p>
+        Every port on this map was located through the
+        <a href="https://whgazetteer.org/" target="_blank" rel="noopener"><strong>World
+        Historical Gazetteer</strong></a> (WHG), an open scholarly infrastructure
+        hosted at the University of Pittsburgh's World History Center. WHG provides
+        a unified index over major place-name sources —
+        <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a>,
+        <a href="https://www.wikidata.org/" target="_blank" rel="noopener">Wikidata</a>,
+        <a href="https://www.getty.edu/research/tools/vocabularies/tgn/" target="_blank" rel="noopener">Getty TGN</a>,
+        <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener">OpenStreetMap</a>,
+        <a href="https://www.openhistoricalmap.org/" target="_blank" rel="noopener">OpenHistoricalMap</a>,
+        <a href="https://pleiades.stoa.org/" target="_blank" rel="noopener">Pleiades</a> —
+        plus contributor-uploaded historical datasets, all reachable through a single
+        <a href="https://docs.whgazetteer.org/content/technical/apis.html" target="_blank" rel="noopener">Reconciliation Service API</a>
+        compliant with the W3C reconciliation spec. For projects with historical
+        place names that don't sit cleanly inside any one modern source, it is
+        an extraordinarily useful piece of public infrastructure, and we'd encourage
+        anyone doing similar work to reach for it first.
+      </p>
+      <p>
+        Sign-up and an API token are free for academic and non-commercial use at
+        <a href="https://whgazetteer.org/accounts/profile/" target="_blank" rel="noopener">whgazetteer.org</a>;
+        an OpenRefine reconciliation endpoint is also available for spreadsheet
+        workflows. Browse the project at
+        <a href="https://whgazetteer.org/" target="_blank" rel="noopener">whgazetteer.org</a>
+        and the technical docs at
+        <a href="https://docs.whgazetteer.org/" target="_blank" rel="noopener">docs.whgazetteer.org</a>.
+      </p>
+
+      <h3>Geocoding procedure (this project)</h3>
+      <p>
+        The 329 normalised place names in <em>Navigare</em>'s
+        <em>luoghi-dizionario</em> were submitted to WHG's reconciliation endpoint
+        in fuzzy mode, country-hinted from the source's region column. Toponyms
+        that returned no hit (Italian exonyms like <em>Marsiglia</em>,
+        <em>Maiorca</em>, <em>Cipro</em>) were re-probed against a small
+        endonym table, then any results still missing a centroid were rescued by
+        walking through the alternate WHG namespaces (gn / wd / osm / tgn) for the
+        same toponym. A hand-curated overrides file holds the residue. The end
+        result: <strong>281 ports mapped</strong>; 24 source entries (sea zones and
+        abstract directions like <em>Levante</em> or the open Mediterranean) have no
+        point geometry by design and are not visualised; the remaining 24 were
+        flagged <em>Non identificabile</em> in the source itself.
+      </p>
+
+      <h3>Vessel-type translations</h3>
+      <p>
+        45 distinct vessel-type tokens appear in the source. Common ones translate
+        cleanly (<em>nave → ship</em>, <em>galea → galley</em>, <em>cocca → cog</em>,
+        <em>caracca → carrack</em>, <em>brigantino → brigantine</em>). Medieval
+        Italian / Genoese / Venetian types with no precise English equivalent
+        (<em>liuto</em>, <em>saettia</em>, <em>vacchetta</em>, <em>rampino</em>…)
+        retain the Italian word with a parenthetical gloss. <em>n.s.</em> abbreviates
+        <em>non specificato</em> (unspecified).
+      </p>
+
+      <h3>Citation &amp; attribution</h3>
+      <p>
+        © Fondazione Istituto Internazionale di Storia Economica
+        <em>"F. Datini"</em>, Prato. Database compiled from the Federigo Melis
+        archive. Map visualisation by this project, code at
+        <a href="https://github.com/docuracy/datini" target="_blank" rel="noopener">github.com/docuracy/datini</a>.
+      </p>
+
+      <h3>Limitations</h3>
+      <ul>
+        <li>
+          The 3,393 voyages plotted are the geocodable subset of the 3,736 source
+          rows; 343 rows lack a routable departure or arrival port. Source rows
+          themselves are a sample (~50%) of Melis's full card collection.
+        </li>
+        <li>
+          Where a source row lists a composite endpoint
+          (<em>Hyères;Brégançon</em>, etc.), only the first listed place is used
+          for the arc — matching the canonical <em>luoghi</em> normalisation.
+        </li>
+        <li>
+          Four entries show negative durations (arrival before departure) —
+          almost certainly transcription errors in the source. They appear in
+          counts but with no duration shown.
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  VESSEL CATEGORIES
+//  Grouping the 45 distinct Italian tokens into 7 broad families,
+//  each with a colour. Used to colour-code routes in Volume mode by
+//  their predominant vessel type and to tint the matching chips in
+//  the sidebar filter so the two stay visually linked. The grouping
+//  is by hull/use type (oared galleys vs. Northern cogs vs. local
+//  coastal traders, etc.) rather than by size — it's the dimension
+//  that makes the busiest routes immediately legible at a glance.
+// ═══════════════════════════════════════════════════════════════
+const CATEGORY_INFO = {
+  galleys:     { color: '#e85048', label: 'Galleys (oared)',
+                 example: 'galea, galeotta, fusta, saettia' },
+  cogs:        { color: '#9060d0', label: 'Cogs & carracks',
+                 example: 'cocca, caracca' },
+  ships:       { color: '#f0c040', label: 'Sailing ships',
+                 example: 'nave, navetta, panfilo' },
+  traders:     { color: '#40c0a0', label: 'Coastal traders',
+                 example: 'liuto, rampino, vacchetta' },
+  raiders:     { color: '#e060c0', label: 'Brigantines & pinnaces',
+                 example: 'brigantino, spinazza, fregata' },
+  boats:       { color: '#60a0e0', label: 'Boats & small craft',
+                 example: 'barca, bargia, piatta, legno' },
+  unspecified: { color: '#6050a0', label: 'Unspecified',
+                 example: 'n.s.' },
+};
+const VESSEL_CATEGORY = {
+  // Galleys (oared military/cargo)
+  'galea': 'galleys', 'galeotta': 'galleys', 'galeazza': 'galleys',
+  'fusta': 'galleys', 'saettia': 'galleys', 'saetta': 'galleys',
+  // Cogs / carracks (Northern-style ocean traders)
+  'cocca': 'cogs', 'cocchetta': 'cogs', 'caracca': 'cogs',
+  // Large sailing ships (generic merchants)
+  'nave': 'ships', 'navetta': 'ships', 'navilio': 'ships',
+  'panfilo': 'ships', 'veliera': 'ships',
+  '2 coperte': 'ships', '3 coperte': 'ships',
+  // Italian/Mediterranean coastal trading types
+  'liuto': 'traders', 'liuto armato': 'traders',
+  'rampino': 'traders', 'vacchetta': 'traders',
+  // Brigantines, pinnaces, corsair-class light vessels
+  'brigantino': 'raiders', 'bragantino': 'raiders',
+  'brigantino di 12 remi': 'raiders',
+  'spinazza': 'raiders', 'spinozza': 'raiders', 'spinza armata': 'raiders',
+  'corsara': 'raiders', 'nave di corsa': 'raiders', 'fregata': 'raiders',
+  // Boats, lighters, generic wooden small craft, horse-transports
+  'barca': 'boats', 'barcozzo': 'boats', 'barcozo': 'boats',
+  'bargia': 'boats', 'bargetta': 'boats',
+  'piatta': 'boats', 'legno': 'boats', 'lengo': 'boats',
+  'legnotto': 'boats', 'scafo': 'boats', 'scafa': 'boats',
+  'trita': 'boats', 'schifo': 'boats',
+  'destriera': 'boats', 'destriero': 'boats',
+  // Unspecified
+  'n.s.': 'unspecified',
+};
+function categoryOf(token) {
+  return VESSEL_CATEGORY[token] || 'unspecified';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let journeysData = null;
+let luoghiData   = null;
+let vesselDict   = null;
+
+let currentMode  = 'volume';      // 'volume' | 'duration'
+let datedOnly    = false;
+let yearMin      = 1379;
+let yearMax      = 1492;
+let minCount     = 1;
+let vesselFilter = new Set();     // empty = all vessel types
+let map;
+
+// Aggregated routes after filtering
+let routesGeo = null;
+let citiesGeo = null;
+let routeIndex = new Map();       // "FROM||TO" → aggregated record
+
+// ═══════════════════════════════════════════════════════════════
+//  URL HASH STATE
+// ═══════════════════════════════════════════════════════════════
+function parseHash() {
+  const h = window.location.hash.replace(/^#/, '');
+  const out = {};
+  if (!h) return out;
+  h.split('&').forEach(p => {
+    const eq = p.indexOf('=');
+    if (eq > 0) out[p.slice(0, eq)] = decodeURIComponent(p.slice(eq + 1));
+  });
+  return out;
+}
+
+function writeHash() {
+  if (!map) return;
+  const parts = [`mode=${currentMode}`];
+  if (datedOnly) parts.push('dated=1');
+  if (yearMin > 1379 || yearMax < 1492) parts.push(`years=${yearMin}-${yearMax}`);
+  if (minCount > 1) parts.push(`min=${minCount}`);
+  if (vesselFilter.size > 0)
+    parts.push(`vessel=${encodeURIComponent([...vesselFilter].join(','))}`);
+  const c = map.getCenter();
+  parts.push(`map=${c.lng.toFixed(3)},${c.lat.toFixed(3)},${map.getZoom().toFixed(2)}`);
+  const newHash = '#' + parts.join('&');
+  if (newHash !== window.location.hash) {
+    history.replaceState(null, '', newHash);
+  }
+}
+
+// Apply hash before map init
+const initialHash = parseHash();
+if (initialHash.mode && ['volume', 'duration'].includes(initialHash.mode))
+  currentMode = initialHash.mode;
+if (initialHash.dated === '1') datedOnly = true;
+if (initialHash.years) {
+  const [a, b] = initialHash.years.split('-').map(Number);
+  if (Number.isFinite(a)) yearMin = Math.max(1379, a);
+  if (Number.isFinite(b)) yearMax = Math.min(1492, b);
+}
+if (initialHash.min) {
+  const n = parseInt(initialHash.min, 10);
+  if (Number.isFinite(n) && n >= 1) minCount = n;
+}
+if (initialHash.vessel) {
+  initialHash.vessel.split(',').forEach(t => t && vesselFilter.add(t));
+}
+
+let initCenter = [9, 41];
+let initZoom = 4.2;
+if (initialHash.map) {
+  const [lng, lat, z] = initialHash.map.split(',').map(Number);
+  if (Number.isFinite(lng) && Number.isFinite(lat)) initCenter = [lng, lat];
+  if (Number.isFinite(z)) initZoom = z;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MAP INIT
+// ═══════════════════════════════════════════════════════════════
+map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  center: initCenter,
+  zoom: initZoom,
+  minZoom: 2,
+  maxZoom: 12,
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+map.on('moveend', writeHash);
+
+// ═══════════════════════════════════════════════════════════════
+//  LOAD DATA
+// ═══════════════════════════════════════════════════════════════
+async function loadData() {
+  const [j, l, v] = await Promise.all([
+    fetch('data/processed/journeys.geojson').then(r => r.json()),
+    fetch('data/processed/luoghi.geojson').then(r => r.json()),
+    fetch('data/processed/vessel_types.json').then(r => r.json()),
+  ]);
+  journeysData = j;
+  luoghiData   = l;
+  vesselDict   = v.translations;
+  buildVesselChips();
+  initFilters();
+  rebuildAndRender();
+  document.getElementById('loading').classList.add('hidden');
+  setTimeout(() => document.getElementById('loading').remove(), 600);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FILTERING + AGGREGATION
+// ═══════════════════════════════════════════════════════════════
+function filteredVoyages() {
+  return journeysData.features.filter(f => {
+    const p = f.properties;
+    if (datedOnly && !p.has_dates) return false;
+    // Year-range applies to departure year when dated; undated journeys
+    // pass through the year filter (they have no year to compare).
+    if (p.has_dates && p.departure_iso) {
+      const y = parseInt(p.departure_iso.slice(0, 4), 10);
+      if (y < yearMin || y > yearMax) return false;
+    }
+    if (vesselFilter.size > 0) {
+      // Match if ANY of the row's ship types is in the filter
+      const hit = p.ship_types_it.some(t => vesselFilter.has(t));
+      if (!hit) return false;
+    }
+    return true;
+  });
+}
+
+function aggregateByRoute(voyages) {
+  // route_key = "FROM→TO". Each route accumulates count, duration stats,
+  // year range, dominant ship type, and the underlying voyage list.
+  const idx = new Map();
+  for (const f of voyages) {
+    const p = f.properties;
+    const key = `${p.departure_place}→${p.arrival_place}`;
+    let r = idx.get(key);
+    if (!r) {
+      r = {
+        key,
+        from: p.departure_place,
+        to:   p.arrival_place,
+        from_coords: f.geometry.coordinates[0],
+        to_coords:   f.geometry.coordinates[1],
+        count: 0,
+        dated_count: 0,
+        durations: [],     // valid (non-null, non-negative) durations
+        years: [],
+        ship_token_counts: {},   // it-token → n
+        voyages: [],
+      };
+      idx.set(key, r);
+    }
+    r.count += 1;
+    if (p.has_dates) r.dated_count += 1;
+    if (p.duration_days != null) r.durations.push(p.duration_days);
+    if (p.departure_iso) r.years.push(parseInt(p.departure_iso.slice(0, 4), 10));
+    for (const t of p.ship_types_it) {
+      r.ship_token_counts[t] = (r.ship_token_counts[t] || 0) + 1;
+    }
+    r.voyages.push(p);
+  }
+  // Derive aggregates
+  for (const r of idx.values()) {
+    r.avg_duration = r.durations.length
+      ? r.durations.reduce((a, b) => a + b, 0) / r.durations.length
+      : null;
+    r.min_year = r.years.length ? Math.min(...r.years) : null;
+    r.max_year = r.years.length ? Math.max(...r.years) : null;
+    const sortedTokens = Object.entries(r.ship_token_counts)
+      .sort((a, b) => b[1] - a[1]);
+    r.top_ship = sortedTokens[0] ? sortedTokens[0][0] : '';
+    // Visual category: prefer the most-common KNOWN token. If a route is
+    // dominated by "n.s." but has any meaningful types underneath, colour
+    // by those — otherwise the arc would be grey despite real info.
+    const meaningful = sortedTokens.find(([t]) => t && t !== 'n.s.');
+    r.top_category = meaningful ? categoryOf(meaningful[0]) : 'unspecified';
+  }
+  return idx;
+}
+
+function curvedLine(lng1, lat1, lng2, lat2, steps = 36) {
+  // Same midpoint-offset arc generator as the letters page, scaled down.
+  const dx = lng2 - lng1, dy = lat2 - lat1;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  // Perpendicular offset proportional to distance
+  const offset = dist * 0.15;
+  const midLng = (lng1 + lng2) / 2 - dy * offset / (dist || 1);
+  const midLat = (lat1 + lat2) / 2 + dx * offset / (dist || 1);
+  const coords = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const x = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * midLng + t * t * lng2;
+    const y = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * midLat + t * t * lat2;
+    coords.push([x, y]);
+  }
+  return coords;
+}
+
+function buildRouteGeoJSON() {
+  const features = [];
+  for (const r of routeIndex.values()) {
+    if (r.count < minCount) continue;
+    if (currentMode === 'duration' && r.avg_duration == null) continue;
+    features.push({
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: curvedLine(...r.from_coords, ...r.to_coords),
+      },
+      properties: {
+        key: r.key,
+        from: r.from,
+        to: r.to,
+        count: r.count,
+        dated_count: r.dated_count,
+        avg_duration: r.avg_duration == null ? null : Math.round(r.avg_duration * 10) / 10,
+        min_year: r.min_year,
+        max_year: r.max_year,
+        top_ship: r.top_ship,
+        top_category: r.top_category,
+      },
+    });
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+function buildCityGeoJSON() {
+  // Cities are derived from active routes only — show ports that the
+  // current filter actually uses, with size scaled by total voyages.
+  const cityCount = new Map();
+  const cityCoords = new Map();
+  for (const r of routeIndex.values()) {
+    if (r.count < minCount) continue;
+    cityCount.set(r.from, (cityCount.get(r.from) || 0) + r.count);
+    cityCount.set(r.to,   (cityCount.get(r.to)   || 0) + r.count);
+    cityCoords.set(r.from, r.from_coords);
+    cityCoords.set(r.to,   r.to_coords);
+  }
+  // Pull authoritative attributes (region, country) from luoghi gazetteer.
+  const luoghiByName = new Map(
+    luoghiData.features.map(f => [f.properties.name, f.properties])
+  );
+  return {
+    type: 'FeatureCollection',
+    features: [...cityCount.entries()].map(([name, c]) => {
+      const props = luoghiByName.get(name) || {};
+      return {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: cityCoords.get(name) },
+        properties: { name, count: c, region: props.region || '', country: props.country || '' },
+      };
+    }),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  COLOURS  (shared with the letters page travel-time palette)
+// ═══════════════════════════════════════════════════════════════
+function durationColor(days) {
+  if (days == null) return '#3a3060';
+  const stops = [
+    [0,  [0x00, 0xc8, 0xff]],
+    [5,  [0x40, 0xe0, 0x80]],
+    [14, [0xf0, 0xd0, 0x60]],
+    [30, [0xff, 0x60, 0x30]],
+    [60, [0xcc, 0x20, 0x60]],
+  ];
+  if (days <= stops[0][0]) return rgbToHex(stops[0][1]);
+  if (days >= stops[stops.length - 1][0]) return rgbToHex(stops[stops.length - 1][1]);
+  for (let i = 0; i < stops.length - 1; i++) {
+    if (days >= stops[i][0] && days <= stops[i + 1][0]) {
+      const t = (days - stops[i][0]) / (stops[i + 1][0] - stops[i][0]);
+      return rgbToHex(stops[i][1].map((c, k) => Math.round(c + t * (stops[i + 1][1][k] - c))));
+    }
+  }
+}
+function rgbToHex([r, g, b]) {
+  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LAYERS
+// ═══════════════════════════════════════════════════════════════
+function ensureSource(id, data) {
+  if (map.getSource(id)) map.getSource(id).setData(data);
+  else map.addSource(id, { type: 'geojson', data });
+}
+
+function drawLayers() {
+  ensureSource('routes-src', routesGeo);
+  ensureSource('cities-src', citiesGeo);
+
+  if (!map.getLayer('routes-volume')) {
+    map.addLayer({
+      id: 'routes-volume',
+      type: 'line',
+      source: 'routes-src',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': ['match', ['get', 'top_category'],
+          'galleys',     CATEGORY_INFO.galleys.color,
+          'cogs',        CATEGORY_INFO.cogs.color,
+          'ships',       CATEGORY_INFO.ships.color,
+          'traders',     CATEGORY_INFO.traders.color,
+          'raiders',     CATEGORY_INFO.raiders.color,
+          'boats',       CATEGORY_INFO.boats.color,
+          /* default */  CATEGORY_INFO.unspecified.color,
+        ],
+        'line-opacity': ['interpolate', ['linear'], ['get', 'count'],
+          1, 0.5,  10, 0.75,  100, 0.9,  500, 1.0],
+        'line-width': ['interpolate', ['linear'], ['get', 'count'],
+          1, 0.6,  5, 1.4,  20, 2.5,  100, 4.2,  500, 7],
+        'line-blur': ['interpolate', ['linear'], ['get', 'count'],
+          1, 1.0,  100, 0.3],
+      },
+    });
+  }
+
+  if (!map.getLayer('routes-duration')) {
+    map.addLayer({
+      id: 'routes-duration',
+      type: 'line',
+      source: 'routes-src',
+      filter: ['!=', ['get', 'avg_duration'], null],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': ['interpolate', ['linear'], ['coalesce', ['get', 'avg_duration'], 0],
+          0,  '#00c8ff',
+          5,  '#40e080',
+          14, '#f0d060',
+          30, '#ff6030',
+          60, '#cc2060',
+        ],
+        'line-opacity': 0.85,
+        'line-width': ['interpolate', ['linear'], ['get', 'count'],
+          1, 0.8,  5, 1.6,  20, 2.8,  100, 4.5,  500, 7],
+      },
+    });
+  }
+
+  if (!map.getLayer('cities-bubbles')) {
+    map.addLayer({
+      id: 'cities-bubbles',
+      type: 'circle',
+      source: 'cities-src',
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['get', 'count'],
+          1, 3, 20, 5, 100, 8, 500, 13, 2000, 18],
+        'circle-color': '#60a0e0',
+        'circle-opacity': 0.85,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#8080ff',
+      },
+    });
+  }
+
+  if (!map.getLayer('cities-labels')) {
+    map.addLayer({
+      id: 'cities-labels',
+      type: 'symbol',
+      source: 'cities-src',
+      filter: ['>=', ['get', 'count'], 100],
+      layout: {
+        'text-field': ['get', 'name'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.2],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: {
+        'text-color': '#e8dfc8',
+        'text-halo-color': '#0a0818',
+        'text-halo-width': 1.5,
+        'text-opacity': 0.9,
+      },
+    });
+  }
+
+  applyMode(currentMode);
+  updateStats();
+  updateLegend();
+}
+
+function applyMode(mode) {
+  if (!map.getLayer('routes-volume')) return;
+  const vis = id => v => map.setLayoutProperty(id, 'visibility', v ? 'visible' : 'none');
+  vis('routes-volume')  (mode === 'volume');
+  vis('routes-duration')(mode === 'duration');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER PIPELINE
+// ═══════════════════════════════════════════════════════════════
+function rebuildAndRender() {
+  const voyages = filteredVoyages();
+  routeIndex = aggregateByRoute(voyages);
+  routesGeo  = buildRouteGeoJSON();
+  citiesGeo  = buildCityGeoJSON();
+  drawLayers();
+  writeHash();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATS + LEGEND
+// ═══════════════════════════════════════════════════════════════
+function updateStats() {
+  const nRoutes = routesGeo.features.length;
+  const nVoyages = routesGeo.features.reduce((a, f) => a + f.properties.count, 0);
+  document.getElementById('stat-routes').textContent = nRoutes.toLocaleString();
+  document.getElementById('stat-voyages').textContent = nVoyages.toLocaleString();
+}
+
+function updateLegend() {
+  const el = document.getElementById('legend-content');
+  if (currentMode === 'duration') {
+    el.innerHTML = `
+      <div style="font-size:0.7rem;color:#a090c0;margin-bottom:6px;">Avg sailing days</div>
+      <div class="legend-gradient" style="background:linear-gradient(to right,
+        #00c8ff 0%, #40e080 12%, #f0d060 30%, #ff6030 60%, #cc2060 100%);"></div>
+      <div class="legend-labels"><span>0</span><span>5</span><span>14</span><span>30</span><span>60+</span></div>
+      <div style="font-size:0.68rem;color:#6050a0;font-style:italic;margin-top:8px;line-height:1.4;">
+        Width is voyage count per route. Arcs with no dated voyages are hidden in this mode.
+      </div>`;
+  } else {
+    // Volume legend: 7 vessel categories + a size-by-count cue.
+    const catRows = Object.entries(CATEGORY_INFO).map(([key, info]) => `
+      <div class="legend-item" title="${escapeHtml(info.example)}">
+        <div class="legend-line" style="background:${info.color};height:3px;"></div>
+        <span>${escapeHtml(info.label)}</span>
+      </div>`).join('');
+    el.innerHTML = `
+      <div style="font-size:0.68rem;color:#a090c0;margin-bottom:6px;line-height:1.45;">
+        Arc colour = predominant vessel type on that route.
+        Width = voyage count.
+      </div>
+      ${catRows}
+      <div style="margin-top:10px;font-size:0.66rem;color:#6050a0;
+                  border-top:1px solid #2a2040;padding-top:6px;line-height:1.45;">
+        Hover a category for example types. <em>n.s.</em> = non specificato.
+      </div>
+      <div class="legend-item" style="margin-top:8px;">
+        <div class="legend-swatch" style="background:#60a0e0;"></div>
+        <span>Port (size = total voyages)</span>
+      </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FILTERS WIRING
+// ═══════════════════════════════════════════════════════════════
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === m);
+  });
+  // Travel Time auto-enables dated-only — duration only exists then.
+  if (m === 'duration' && !datedOnly) {
+    datedOnly = true;
+    document.getElementById('dated-only').checked = true;
+  }
+  rebuildAndRender();
+}
+
+function onDatedOnly(checked) {
+  datedOnly = checked;
+  rebuildAndRender();
+}
+
+const YEAR_RANGE_MIN = 1379;
+const YEAR_RANGE_MAX = 1492;
+
+function updateYearBand() {
+  const span = YEAR_RANGE_MAX - YEAR_RANGE_MIN;
+  const leftPct  = ((yearMin - YEAR_RANGE_MIN) / span) * 100;
+  const rightPct = ((yearMax - YEAR_RANGE_MIN) / span) * 100;
+  const band = document.getElementById('year-band');
+  band.style.left  = leftPct + '%';
+  band.style.right = (100 - rightPct) + '%';
+  // When the two handles get close, raise z-index on the one nearer the
+  // centre so it can always be grabbed (otherwise an overlapping max thumb
+  // hides the min thumb and the user can't pull it back inward).
+  const mid = YEAR_RANGE_MIN + span / 2;
+  document.getElementById('year-min').style.zIndex = yearMin > mid ? 3 : 2;
+  document.getElementById('year-max').style.zIndex = yearMax < mid ? 3 : 2;
+}
+
+function onYearRange() {
+  const a = parseInt(document.getElementById('year-min').value, 10);
+  const b = parseInt(document.getElementById('year-max').value, 10);
+  // Read values straight from the inputs but allow them to cross — taking
+  // min/max gives a stable filter even when the user drags one past the
+  // other. The visible band always reflects [yearMin, yearMax].
+  yearMin = Math.min(a, b);
+  yearMax = Math.max(a, b);
+  document.getElementById('year-range-val').textContent = `${yearMin} – ${yearMax}`;
+  updateYearBand();
+  rebuildAndRender();
+}
+
+function onMinCount(v) {
+  minCount = parseInt(v, 10);
+  document.getElementById('min-count-val').textContent = minCount;
+  rebuildAndRender();
+}
+
+function buildVesselChips() {
+  // Sum tokens across ALL voyages so counts on chips reflect the underlying
+  // corpus (not the current filter — otherwise filtering one chip would
+  // immediately zero the others, which is confusing).
+  const counts = {};
+  for (const f of journeysData.features) {
+    for (const t of f.properties.ship_types_it) {
+      counts[t] = (counts[t] || 0) + 1;
+    }
+  }
+  // Sort: by category first (so similar types cluster together), then by
+  // count within category. Makes the filter scan-able and reinforces the
+  // colour grouping shared with the map legend.
+  const sorted = Object.entries(counts).sort((a, b) => {
+    const ca = categoryOf(a[0]), cb = categoryOf(b[0]);
+    if (ca !== cb) {
+      const order = Object.keys(CATEGORY_INFO);
+      return order.indexOf(ca) - order.indexOf(cb);
+    }
+    return b[1] - a[1];
+  });
+  const wrap = document.getElementById('vessel-chips');
+  wrap.innerHTML = sorted.map(([t, n]) => {
+    const cat = categoryOf(t);
+    const color = CATEGORY_INFO[cat].color;
+    const en = vesselDict[t] || t;
+    return `<div class="v-chip ${vesselFilter.has(t) ? 'on' : ''}"
+                 data-token="${escapeHtml(t)}"
+                 style="--cat-color:${color};"
+                 title="${escapeHtml(en)} — ${escapeHtml(CATEGORY_INFO[cat].label)}"
+                 onclick="toggleVessel('${t.replace(/'/g, "\\'")}')">
+              ${escapeHtml(t)} <span class="v-count">${n}</span>
+            </div>`;
+  }).join('');
+  updateVesselClearVisibility();
+}
+
+function toggleVessel(t) {
+  if (vesselFilter.has(t)) vesselFilter.delete(t);
+  else vesselFilter.add(t);
+  buildVesselChips();
+  rebuildAndRender();
+}
+
+function clearVesselFilter() {
+  vesselFilter.clear();
+  buildVesselChips();
+  rebuildAndRender();
+}
+
+function updateVesselClearVisibility() {
+  document.getElementById('vessel-clear').style.display =
+    vesselFilter.size > 0 ? '' : 'none';
+}
+
+function initFilters() {
+  // Total dated count for the checkbox badge
+  const totalDated = journeysData.features.filter(f => f.properties.has_dates).length;
+  document.getElementById('dated-count').textContent =
+    `${totalDated.toLocaleString()} / ${journeysData.features.length.toLocaleString()}`;
+
+  document.getElementById('dated-only').checked = datedOnly;
+  document.getElementById('year-min').value = yearMin;
+  document.getElementById('year-max').value = yearMax;
+  document.getElementById('year-range-val').textContent = `${yearMin} – ${yearMax}`;
+  updateYearBand();
+  document.getElementById('min-count').value = minCount;
+  document.getElementById('min-count-val').textContent = minCount;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  POPUPS + INFO PANEL
+// ═══════════════════════════════════════════════════════════════
+let openPopup = null;
+function showPopup(html, lngLat) {
+  if (openPopup) openPopup.remove();
+  openPopup = new maplibregl.Popup({ closeButton: true, closeOnClick: true })
+    .setLngLat(lngLat)
+    .setHTML(html)
+    .addTo(map);
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+}
+
+function fmtDate(iso) { return iso || '—'; }
+
+function shipTypesHtml(p) {
+  if (!p.ship_types_it || p.ship_types_it.length === 0) return '<em>unspecified</em>';
+  return p.ship_types_it.map((t, i) => {
+    const en = (p.ship_types_en && p.ship_types_en[i]) || t;
+    const same = en === t;
+    return same
+      ? `<span title="no English equivalent">${escapeHtml(t)}</span>`
+      : `${escapeHtml(t)} <span style="color:#a080e0">→ ${escapeHtml(en)}</span>`;
+  }).join('; ');
+}
+
+function showRoutePopup(props, lngLat) {
+  const dur = props.avg_duration != null
+    ? `${props.avg_duration} days (avg, ${props.dated_count} dated)`
+    : `<em>no dated voyages</em>`;
+  const years = props.min_year && props.max_year
+    ? (props.min_year === props.max_year ? `${props.min_year}` : `${props.min_year}–${props.max_year}`)
+    : '—';
+  const topShip = props.top_ship
+    ? `${escapeHtml(props.top_ship)}${vesselDict[props.top_ship] && vesselDict[props.top_ship] !== props.top_ship
+        ? ` (${escapeHtml(vesselDict[props.top_ship])})` : ''}`
+    : '—';
+  showPopup(`
+    <div class="popup-title">${escapeHtml(props.from)} → ${escapeHtml(props.to)}</div>
+    <div class="popup-row"><span>Voyages</span><span class="popup-val">${props.count.toLocaleString()}</span></div>
+    <div class="popup-row"><span>Avg duration</span><span class="popup-val">${dur}</span></div>
+    <div class="popup-row"><span>Years</span><span class="popup-val">${years}</span></div>
+    <div class="popup-row"><span>Top vessel</span><span class="popup-val">${topShip}</span></div>
+    <div class="popup-sub">Full voyage list is shown in the sidebar.</div>
+  `, lngLat);
+  updateInfoPanelRoute(props);
+}
+
+function prettyRegion(raw) {
+  // Source PDF cells are "<sub-region>-<country>" (sometimes joined by "/"
+  // for cross-border places like Sardegna-Italia/Corsica-Francia, or with
+  // no dash for one-word entries like "Grecia"). Render with a middle-dot
+  // between sub-region and country and a slash for cross-border.
+  if (!raw) return '';
+  return raw.split('/')
+    .map(seg => seg.trim().replace(/-/g, ' · '))
+    .join(' / ');
+}
+
+function showCityPopup(props, lngLat) {
+  showPopup(`
+    <div class="popup-title">${escapeHtml(props.name)}</div>
+    <div class="popup-row"><span>Voyages (in/out)</span><span class="popup-val">${props.count.toLocaleString()}</span></div>
+    ${props.region ? `<div class="popup-sub">${escapeHtml(prettyRegion(props.region))}</div>` : ''}
+  `, lngLat);
+  updateInfoPanelCity(props);
+}
+
+function voyageRowHtml(v) {
+  const dateBlock =
+    v.has_dates
+      ? `<span class="v-date">${fmtDate(v.departure_iso)} → ${fmtDate(v.arrival_iso)}</span>
+         ${v.duration_days != null ? `<span class="v-dur">${v.duration_days}d</span>` : ''}`
+      : `<span class="v-date" style="color:#6050a0;font-style:italic;">undated</span>`;
+  const ship = v.ship_types_it.length
+    ? `<span class="v-ship">${escapeHtml(v.ship_types_it.map((t,i) => {
+        const en = v.ship_types_en[i] || t;
+        return en === t ? t : `${t} (${en})`;
+      }).join(', '))}</span>`
+    : '';
+  const meta = [v.ship_name, v.ship_nationality, v.articles, v.persons]
+    .filter(x => x).map(escapeHtml).join(' · ');
+  return `<div class="voyage-row">
+    ${dateBlock} ${ship}
+    ${meta ? `<div class="v-meta">${meta}</div>` : ''}
+  </div>`;
+}
+
+function updateInfoPanelRoute(props) {
+  const route = routeIndex.get(props.key);
+  if (!route) return;
+  // Sort voyages: dated first by date, undated last
+  const voyages = [...route.voyages].sort((a, b) => {
+    if (a.has_dates !== b.has_dates) return a.has_dates ? -1 : 1;
+    return (a.departure_iso || '').localeCompare(b.departure_iso || '');
+  });
+  document.getElementById('info-panel').innerHTML = `
+    <h3>${escapeHtml(props.from)} → ${escapeHtml(props.to)}</h3>
+    <div class="stat-row"><span>Voyages</span><span class="stat-val">${props.count.toLocaleString()}</span></div>
+    <div class="stat-row"><span>Dated</span><span class="stat-val">${props.dated_count}</span></div>
+    <div class="stat-row"><span>Avg duration</span><span class="stat-val">${
+      props.avg_duration != null ? `${props.avg_duration} days` : '—'
+    }</span></div>
+    <div class="stat-row"><span>Year range</span><span class="stat-val">${
+      props.min_year && props.max_year
+        ? (props.min_year === props.max_year ? `${props.min_year}` : `${props.min_year}–${props.max_year}`)
+        : '—'
+    }</span></div>
+    <div class="voyage-list">${voyages.map(voyageRowHtml).join('')}</div>
+  `;
+}
+
+function updateInfoPanelCity(props) {
+  // Pull every route touching this city out of the current routeIndex.
+  const outs = [], ins = [];
+  for (const r of routeIndex.values()) {
+    if (r.count < minCount) continue;
+    if (r.from === props.name) outs.push(r);
+    if (r.to   === props.name) ins.push(r);
+  }
+  outs.sort((a, b) => b.count - a.count);
+  ins.sort((a, b) => b.count - a.count);
+  const renderList = list => list.slice(0, 12).map(r =>
+    `<div class="popup-row" style="cursor:pointer" onclick="zoomToRoute('${r.key.replace(/'/g, "\\'")}')">
+       <span>${escapeHtml(r.from === props.name ? r.to : r.from)}</span>
+       <span class="stat-val">${r.count}</span>
+     </div>`
+  ).join('');
+  document.getElementById('info-panel').innerHTML = `
+    <h3>${escapeHtml(props.name)}</h3>
+    ${props.region ? `<div style="font-size:0.7rem;color:#8070b0;font-style:italic;margin-bottom:6px;">${escapeHtml(prettyRegion(props.region))}</div>` : ''}
+    <div class="stat-row"><span>Total voyages</span><span class="stat-val">${props.count.toLocaleString()}</span></div>
+    <div class="stat-row"><span>Outbound routes</span><span class="stat-val">${outs.length}</span></div>
+    <div class="stat-row"><span>Inbound routes</span><span class="stat-val">${ins.length}</span></div>
+    ${outs.length ? `<div style="margin-top:8px;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.08em;color:#8070b0;">Outbound (top)</div>${renderList(outs)}` : ''}
+    ${ins.length  ? `<div style="margin-top:8px;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.08em;color:#8070b0;">Inbound (top)</div>${renderList(ins)}`  : ''}
+  `;
+}
+
+function zoomToRoute(key) {
+  const r = routeIndex.get(key);
+  if (!r) return;
+  const bounds = new maplibregl.LngLatBounds(r.from_coords, r.from_coords)
+    .extend(r.to_coords);
+  map.fitBounds(bounds, { padding: 80, maxZoom: 7, duration: 600 });
+  showRoutePopup(
+    {
+      key: r.key, from: r.from, to: r.to, count: r.count,
+      dated_count: r.dated_count, avg_duration: r.avg_duration == null ? null
+        : Math.round(r.avg_duration * 10) / 10,
+      min_year: r.min_year, max_year: r.max_year, top_ship: r.top_ship,
+    },
+    [(r.from_coords[0] + r.to_coords[0]) / 2,
+     (r.from_coords[1] + r.to_coords[1]) / 2]
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MAP CLICK EVENTS
+// ═══════════════════════════════════════════════════════════════
+map.on('click', e => {
+  const lyr = currentMode === 'duration' ? 'routes-duration' : 'routes-volume';
+  const routeHit = map.queryRenderedFeatures(e.point, { layers: [lyr] });
+  if (routeHit.length) {
+    showRoutePopup(routeHit[0].properties, e.lngLat);
+    return;
+  }
+  const cityHit = map.queryRenderedFeatures(e.point, { layers: ['cities-bubbles'] });
+  if (cityHit.length) {
+    showCityPopup(cityHit[0].properties, cityHit[0].geometry.coordinates);
+  }
+});
+
+['routes-volume', 'routes-duration', 'cities-bubbles'].forEach(id => {
+  map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer');
+  map.on('mouseleave', id, () => map.getCanvas().style.cursor = '');
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  ABOUT MODAL
+// ═══════════════════════════════════════════════════════════════
+function openAboutModal()  { document.getElementById('about-modal').classList.add('open'); }
+function closeAboutModal() { document.getElementById('about-modal').classList.remove('open'); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('about-modal').classList.contains('open')) {
+    closeAboutModal();
+  }
+});
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'about-modal') closeAboutModal();
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  KICK OFF
+// ═══════════════════════════════════════════════════════════════
+map.on('load', loadData);
+</script>
+</body>
+</html>

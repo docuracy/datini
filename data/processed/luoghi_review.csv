@@ -1,0 +1,330 @@
+status,name,kind,country_iso,match_name,match_id,score,lng,lat
+non identificabile,Ada,porto,,,,,,
+non identificabile,Bellincato,porto,,,,,,
+non identificabile,Bellis,porto,,,,,,
+non identificabile,Bocche di Bonifacio,porto,,,,,,
+non identificabile,Castellammare,porto,,,,,,
+non identificabile,Costa tra Barcellona e Valenza,porto,,,,,,
+non identificabile,Fonti,porto,,,,,,
+non identificabile,Indi,porto,,,,,,
+non identificabile,La Barvicha,porto,,,,,,
+non identificabile,La Ligna,porto,,,,,,
+non identificabile,Mari dell'Arcipelago,porto,,,,,,
+non identificabile,Mari di Setalia,porto,,,,,,
+non identificabile,Montjuich,porto,,,,,,
+non identificabile,Ontazo,porto,,,,,,
+non identificabile,Ortamude,porto,,,,,,
+non identificabile,Poraza,porto,,,,,,
+non identificabile,Porto del Sole,porto,,,,,,
+non identificabile,Segna,porto,,,,,,
+non identificabile,Setalia,porto,,,,,,
+non identificabile,Stretto,porto,,,,,,
+non identificabile,Terranova,porto,,,,,,
+non identificabile,Terranuova,porto,,,,,,
+non identificabile,Vai,porto,,,,,,
+non identificabile,Vay,porto,,,,,,
+skip,Costa di Catalogna,porto,ES,,,,,
+skip,Costiera di Barcellona,porto,ES,,,,,
+skip,Costiera di Catalogna,porto,ES,,,,,
+skip,Golfo del Leone,porto,FR,,,,,
+skip,Levante,regione,,,,,,
+skip,Mare del Nord,porto,,,,,,
+skip,Mari di Bretagna,porto,FR,,,,,
+skip,Mari di Cartagena,porto,ES,,,,,
+skip,Mari di Gaeta,porto,IT,,,,,
+skip,Mari di Galizia,porto,ES,,,,,
+skip,Mari di Malta,porto,,,,,,
+skip,Mari di Palamós,porto,ES,,,,,
+skip,Mari di Portogallo,porto,,,,,,
+skip,Mari di Provenza,porto,FR,,,,,
+skip,Mari di Romania,porto,,,,,,
+skip,Mari di Sapienza,porto,GR,,,,,
+skip,Mari di Sicilia,porto,IT,,,,,
+skip,Mari di Spagna,porto,,,,,,
+skip,Mari di Tolone,porto,FR,,,,,
+skip,Mari di Tripoli,porto,LY,,,,,
+skip,Mediterraneo,porto,,,,,,
+skip,Mezzogiorno,porto,IT,,,,,
+skip,Ponente,porto,,,,,,
+skip,n.s.,porto,,,,,,
+best_guess,Acri,porto,IL,Acre,place:8364219,100,35.08,32.92000000000003
+best_guess,Aigues Mortes,porto,FR,Aigues-Mortes,place:5894593,100,4.195468,43.56952099999998
+best_guess,Al largo della Gorgona,porto,IT,Gargallo,place:wd:Q22450,100,8.409192,45.727571
+best_guess,Alcudia,porto,,l'Alcúdia,place:osm:n1243398548,100,-0.407615,38.86044
+best_guess,Alemagna,regione,,Lemagna,place:osm:n6271870283,100,13.377464,46.271749
+best_guess,Alessandria d'Egitto,porto,EG,Capture of Alexandria,place:wd:Q3403790,100,29.919167,31.198056
+best_guess,Algeri,porto,DZ,Algiers,place:227685,100,3.08746,36.73225
+best_guess,Almeria,porto,ES,Almería Province,place:wd:Q81802,100,-2.333333,37.166667
+best_guess,Anversa,porto,BE,Anvers,place:8359376,100,4.399180121976945,51.22130260388964
+best_guess,Arnhem (nei pressi di Anversa),porto,BE,Gemeenschapscentrum Everna,place:wd:Q33100477,100,4.404657,50.880083
+best_guess,Avenza,porto,IT,Vezzana,place:wd:Q1092027,100,11.867222,46.25
+best_guess,Avignone,porto,FR,Avignonet,place:4752153,100,5.687251,44.95524599999999
+best_guess,Barcellona,porto,ES,Barcelona,place:4615074,100,2.0,41.66600000000002
+best_guess,Barcellona;n.s.,porto,ES,Barcelona Province,place:wd:Q81949,100,2.083333,41.45
+best_guess,Belle Île,porto,FR,Belle-Île-en-Mer,place:5159833,100,-3.187003,47.33306000000002
+best_guess,Biscaglia,porto,ES,Vizcaya Bridge,place:wd:Q331996,100,-3.016944,43.323056
+best_guess,Bocca di Magra,porto,IT,Grotticella presso la Buca della miniera bassa,place:osm:n11307578593,100,10.293197,44.051781
+best_guess,Bretagna,regione,FR,Bretagne,place:6078751,100,2.059042,46.67962100000002
+best_guess,Brégançon,porto,FR,Briançon,place:6128197,100,0.314022,47.14810100000001
+best_guess,Cabo de São Vicente,porto,PT,Cabo de São Vicente Lighthouse,place:wd:Q9300521,100,-8.996139,37.023056
+best_guess,Cabrera,porto,ES,La Cabrera,place:osm:n311117406,100,-3.612547,40.865174
+best_guess,Cadice,porto,ES,Cádiz,place:wd:Q15682,100,-6.2975,36.535
+best_guess,Candia,porto,GR,Heraklion,place:wd:Q160544,100,25.134444,35.340278
+best_guess,Cap de Salou,porto,ES,Cabana de l'Esclafidor,place:wd:Q109555300,100,0.867771,41.482401
+best_guess,Capo Bianco,porto,ES,Peñacañada Club de Campo,place:gn:10942034,100,-0.49298,39.53729
+best_guess,Capo Noli,porto,IT,Parco metropolitano delle Colline di Napoli,place:wd:Q61766915,100,14.1992,40.874
+best_guess,Capo Otranto,porto,IT,Quattro Vanelle,place:wd:Q18472896,100,12.34641,37.92087
+best_guess,Capo di Campana,porto,IT,Castel Gabbiano,place:wd:Q42821,100,9.7,45.466667
+best_guess,Capo di Noli,porto,IT,Largo Paolo D’Ancona,place:wd:Q106434464,100,9.17568,45.46605
+best_guess,Capo di Pietra,porto,ES,Puig de Castellbarri,place:osm:n1627153018,100,3.046809,41.855178
+best_guess,Castellana,porto,ES,La Castellana,place:osm:n1241512128,100,-5.894651,40.383883
+best_guess,Castiglia,porto,ES,Castellgalí,place:wd:Q16686,100,1.837804,41.673277
+best_guess,Catalogna,porto,ES,Catalonia,place:wd:Q5705,100,1.566667,41.85
+best_guess,Chio,porto,GR,Chios,place:wd:Q160483,100,26.016667,38.4
+best_guess,Cipro,porto,,Скрипово,place:osm:n1215320578,100,29.103014,57.686105
+best_guess,Citèra,porto,GR,Kythira,place:wd:Q207239,100,22.9975,36.2575
+best_guess,Ciutadella,porto,ES,la Ciutadella,place:osm:n1241597732,100,3.147152,41.894786
+best_guess,Dragonera pressi,porto,ES,Rec d’Andorra,place:gn:3041564,100,1.5254,42.5178
+best_guess,Famagosta,porto,TR,Famagusta,place:8364276,100,33.94,35.13000000000001
+best_guess,Feodosia,porto,RU,Fedoseyevskoye,place:gn:563017,100,47.6227,58.1473
+best_guess,Fiandra,regione,BE,Flanders,place:wd:Q234,100,4.5,51.0
+best_guess,Foce d'Arno,porto,IT,Q126917007,place:wd:Q126917007,100,10.980083,45.435333
+best_guess,Fort de Brégançon,porto,FR,Fort Brégançon,place:gn:3030413,100,6.32215,43.09261
+best_guess,Galizia,regione,ES,Galicia,place:tgn:7002786,100,-8.0,42.75
+best_guess,Galles,porto,GB,Wales,place:wd:Q25,100,-3.633333,52.35
+best_guess,Giaffa,porto,IL,יפו,place:osm:n278471086,100,34.750991,32.044339
+best_guess,Gibilterra,porto,GB,Gibraltar Point,place:tgn:1011919,100,0.333333,53.1
+best_guess,Golfo di Venezia,porto,IT,Castello della Giovannina,place:wd:Q4012698,100,11.2634,44.7351
+best_guess,Honaïne,porto,DZ,Honnaine,place:gn:12952882,100,-1.61512,35.16966
+best_guess,Isola d'Albenga,porto,IT,Gallinara,place:wd:Q1492476,100,8.226333,44.0255
+best_guess,Isole Medas,porto,ES,Sida Mohand Lillah,place:gn:11092561,100,-3.48067,35.06889
+best_guess,La Canea,porto,GR,Chania,place:wd:Q182299,100,24.016667,35.516667
+best_guess,La Coruña,porto,ES,A Coruña Province,place:wd:Q82119,100,-8.4,43.37
+best_guess,Largo di Civitavecchia,porto,IT,Bosco San Cristoforo,place:osm:n6054429475,100,15.05008,41.536195
+best_guess,Lisbona,porto,PT,Lisboa,place:5277043,100,-9.133333,39.00000000000004
+best_guess,Londra,porto,GB,London,place:227562,100,-0.12574,51.50853000000002
+best_guess,Maiorca pressi,porto,ES,Çokhra Al Mbwirka,place:gn:11434652,100,-7.44018,32.97246
+best_guess,Malaga,porto,ES,Málaga,place:2487309,100,-4.42034,36.720159999999986
+best_guess,Malaga pressi,porto,ES,Plaza Mayor de Almagro,place:wd:Q6079676,100,-3.711944,38.888611
+best_guess,Manica (canale della),porto,,McKenzie Inlet,place:tgn:2502080,100,-132.35,55.35
+best_guess,Manica (canale della),porto,GB,Insel Man,place:tgn:7005258,100,-4.5,54.25
+best_guess,Marsiglia,porto,FR,Marseille,place:227995,100,5.38107,43.29695000000001
+best_guess,Melora,porto,IT,Merola,place:osm:n2964340020,100,13.695492,41.254787
+best_guess,Mitilene,porto,GR,Mytilene,place:wd:Q189059,100,26.5536,39.1047
+best_guess,Modone,porto,GR,Methoni,place:wd:Q998805,100,21.706944,36.821667
+best_guess,Narbona,porto,FR,Gare de Narbonne,place:gn:8288438,100,3.00578,43.19087
+best_guess,Nizza,porto,FR,Saint-Gy,place:gn:12318897,100,3.89374,47.10749
+best_guess,Olanda,regione,,Nederland,place:ohm:r2743609,100,5.60067,52.179934
+best_guess,Orano,porto,DZ,Oran,place:wd:Q131818,100,-0.633056,35.696944
+best_guess,Parenzo,porto,HR,Poreč,place:wd:Q5323,100,13.595224,45.227172
+best_guess,Perpignano,porto,FR,Le Penon,place:gn:11548910,100,6.09617,45.59092
+best_guess,Peñiscola,porto,ES,Peniscola,place:wd:Q115507832,100,0.407878,40.358751
+best_guess,Pisa (porto fluviale),porto,IT,"""Filippo del Ponte"" Hospital",place:wd:Q19369275,100,8.834589,45.815662
+best_guess,Port Bon,porto,,Portofino Inn Burbank,place:gn:10284279,100,-118.31721,34.17277
+best_guess,Porto Fangoso,porto,ES,"La Platjola, Balsa de",place:tgn:7331705,100,0.783333,40.666667
+best_guess,Porto Morici,porto,IT,Porto Maurizio,place:gn:3170079,100,8.01401,43.87439
+best_guess,Porto Olivo,porto,FR,Le Plot,place:gn:12318587,100,6.18635,46.00441
+best_guess,Porto Vecchio,porto,FR,Porto-Vecchio,place:5442207,100,9.279907,41.58936399999996
+best_guess,Portogallo,porto,,Portugal,place:gn:10114465,100,-44.19379,-23.04218
+best_guess,Provenza,regione,FR,Provency,place:6212413,100,3.954878,47.54654999999998
+best_guess,Ramua,porto,BE,Raam,place:wd:Q24573089,100,5.660994,51.200847
+best_guess,Rio di Siviglia,porto,ES,"Irixoa, Irixoa",place:wd:Q11239929,100,-8.0622,43.284
+best_guess,Ripa di Roma,porto,IT,Ripa di Ferramoto,place:osm:n9562059826,100,9.295713,41.969554
+best_guess,Ripa di Roma,porto,IT,Ripa di Ferramoto,place:osm:n9562059826,100,9.295713,41.969554
+best_guess,Riviera ligure,porto,IT,Italian Riviera,place:wd:Q11124206,100,8.782222,44.435917
+best_guess,Rodi,porto,GR,Rhodes,place:tgn:7011265,100,28.2225,36.440833
+best_guess,Romania;Levante,porto,,Rumah Labang,place:gn:1747810,100,113.2,3.23333
+best_guess,San Feliu de Guíxois,porto,ES,Góis,place:wd:Q425410,100,-8.116667,40.15
+best_guess,Scozia,porto,GB,Alba / Scotland,place:ohm:r2874396,100,-4.811333,57.744405
+best_guess,Siviglia,porto,ES,Seville,place:tgn:7008676,100,-5.986944,37.377222
+best_guess,Southampton pressi,porto,GB,City of Southampton,place:wd:Q21683230,100,-1.38333,50.91667
+best_guess,Spagna,regione,,España,place:osm:r1311341,100,-3.280332,39.909489
+best_guess,Stiges,porto,ES,Sitges,place:wd:Q15551,100,1.804167,41.233889
+best_guess,Stretto di Gibilterra,porto,,Ejido Libertad,place:gn:8911810,100,-106.21133,28.89435
+best_guess,Talamone pressi,porto,IT,Talamona railway halt,place:wd:Q16609941,100,9.60031,46.139865
+best_guess,Tamigi,porto,GB,River Thames,place:wd:Q19686,100,0.61,51.5
+best_guess,Tedelis,porto,DZ,Tlemcen,place:wd:Q185134,100,-1.316667,34.882778
+best_guess,Tenedo,porto,TR,Bozcaada,place:osm:n7446867755,100,26.070192,39.834734
+best_guess,Tolone,porto,FR,col du Rothenbach,place:gn:12156572,100,6.97999,48.00542
+best_guess,Tunisi,porto,TN,Tunis,place:2487579,100,10.16579,36.818969999999986
+best_guess,Tènés,porto,DZ,Ténès,place:wd:Q860307,100,1.306389,36.508056
+best_guess,Valenza pressi,porto,ES,Pasaje Valvanera,place:wd:Q97642646,100,-5.98898,37.399959
+best_guess,Zelanda,regione,NL,Zeeland,place:wd:Q705,100,3.75,51.566667
+matched,Agde,porto,FR,Agde,place:4814866,100,3.47534,43.31099099999998
+matched,Agrigento,porto,IT,Agrigento,place:wd:Q13678,100,13.575,37.3125
+matched,Albenga,porto,IT,Albenga,place:osm:n66587093,100,8.213124,44.04925
+matched,Aleppo,porto,SY,Aleppo,place:227717,100,37.16117,36.20124000000004
+matched,Alghero,porto,IT,Alghero,place:wd:Q166282,100,8.315,40.56
+matched,Alicante,porto,ES,Alicante,place:wd:Q11959,100,-0.483056,38.345278
+matched,Amalfi,porto,IT,Amalfi,place:wd:Q30022186,100,14.60238,40.6349
+matched,Ancona,porto,IT,Ancona,place:osm:r53059,100,13.218728,43.480119
+matched,Annaba,porto,DZ,Annaba,place:osm:r1455599,100,7.598174,36.843845
+matched,Arles,porto,FR,Arles,place:81540,100,4.6278,43.67669999999999
+matched,Arzilla,porto,MA,Arzilla,place:8364235,100,-6.03,35.45999999999997
+matched,Azemmour,porto,MA,Azemmour,place:wd:Q178172,100,-8.333333,33.283333
+matched,Baiona,porto,ES,Baiona,place:wd:Q748867,100,-8.850086,42.119926
+matched,Bari,porto,IT,Bari,place:osm:n68528585,100,16.862029,41.125784
+matched,Beirut,porto,LB,Beirut,place:227691,100,35.50157,33.893319999999996
+matched,Benicarló,porto,ES,Benicarló,place:wd:Q817302,100,0.423056,40.418611
+matched,Benidorm,porto,ES,Benidorm,place:wd:Q487981,100,-0.131389,38.534167
+matched,Bibbona,porto,IT,Bibbona,place:wd:Q157673,100,10.594444,43.269444
+matched,Bilbao,porto,ES,Bilbao,place:osm:n27000762,100,-2.935004,43.263002
+matched,Blanes,porto,ES,Blanes,place:wd:Q12991,100,2.792111,41.674
+matched,Brindisi,porto,IT,Brindisi,place:wd:Q13496,100,17.945833,40.638333
+matched,Bruges,porto,BE,Bruges,place:wd:Q12994,100,3.224167,51.208889
+matched,Béjaïa,porto,DZ,Béjaïa,place:wd:Q59975,100,5.064167,36.751111
+matched,Cadaqués,porto,ES,Cadaqués,place:wd:Q11263,100,3.277778,42.288611
+matched,Cagliari,porto,IT,Cagliari,place:wd:Q1897,100,9.116667,39.216667
+matched,Calabria,regione,IT,Calabria,place:tgn:7007850,100,16.5,39.0
+matched,Calais,porto,FR,Calais,place:5011484,100,0.9830749999999999,44.97814000000005
+matched,Capdepera,porto,ES,Capdepera,place:wd:Q920971,100,3.433333,39.7
+matched,Capraia,porto,IT,Capraia,place:wd:Q3593349,100,9.808333,43.041667
+matched,Cartagena,porto,ES,Cartagena,place:wd:Q162615,100,-0.984167,37.601944
+matched,Castellammare del Golfo,porto,IT,Castellammare del Golfo,place:wd:Q481642,100,12.880556,38.026389
+matched,Castelldefels,porto,ES,Castelldefels,place:wd:Q15597,100,1.976667,41.28
+matched,Catania,porto,IT,Catania,place:ohm:n2108623013,100,15.087155,37.502558
+matched,Civitavecchia,porto,IT,Civitavecchia,place:wd:Q242533,100,11.8,42.1
+matched,Collioure,porto,FR,Collioure,place:4548080,100,3.083952,42.525791999999996
+matched,Crotone,porto,IT,Crotone,place:wd:Q6681,100,17.116667,39.083333
+matched,Damietta,porto,EG,Damietta,place:wd:Q189383,100,31.821389,31.416667
+matched,Dieppe,porto,FR,Dieppe,place:83540,100,1.08,49.92000000000001
+matched,Dragonera,porto,ES,Dragonera,place:wd:Q1232094,100,2.321389,39.583889
+matched,Dubrovnik,porto,HR,Dubrovnik,place:ohm:n1825552175,100,18.081351,42.663712
+matched,Dénia,porto,ES,Dénia,place:wd:Q24008519,100,0.06777,38.82771
+matched,Finale Ligure,porto,IT,Finale Ligure,place:wd:Q270737,100,8.343536,44.169072
+matched,Foglia,porto,IT,Foglia,place:osm:n1067321065,100,9.863506,45.598399
+matched,Francia,regione,,Francia,place:gn:1713569,100,122.925,14.1295
+matched,Gaeta,porto,IT,Gaeta,place:gn:6542094,100,13.56281,41.21831
+matched,Gallinaria,porto,IT,Gallinaria,place:gn:8955997,100,9.22114,44.41327
+matched,Gallipoli,porto,IT,Gallipoli,place:gn:11886622,100,17.97855,40.0547
+matched,Genova,porto,IT,Genova,place:ohm:n2087565388,100,8.933024,44.406834
+matched,Gorgona,porto,IT,Gorgona,place:wd:Q19347,100,9.9,43.433333
+matched,Harfleur,porto,FR,Harfleur,place:5668100,100,0.192722,49.511248000000016
+matched,Hyères,porto,FR,Hyères,place:gn:12519480,100,5.85746,45.5271
+matched,Ibiza,porto,ES,Ibiza,place:gn:11549939,100,-3.67434,40.41888
+matched,Ischia,porto,IT,Ischia,place:wd:Q30026361,100,13.94862,40.73793
+matched,Istanbul,porto,TR,Istanbul,place:227537,100,28.949660000000005,41.013840000000016
+matched,Jávea,porto,ES,Jávea,place:tgn:1062095,100,0.166667,38.783333
+matched,L'Écluse,porto,BE,L'Écluse,place:osm:n8375301969,100,4.900303,49.707915
+matched,La Rochelle,porto,FR,La Rochelle,place:gn:3006784,100,2.30491,48.02208
+matched,La Spezia,porto,IT,La Spezia,place:wd:Q8611,100,9.828881,44.108044
+matched,Lerici,porto,IT,Lerici,place:gn:3174856,100,9.91121,44.07587
+matched,Leucate,porto,FR,Leucate,place:gn:2999046,100,3.02944,42.91056
+matched,Levanto,porto,IT,Levanto,place:gn:3174793,100,9.6167,44.17424
+matched,Licata,porto,IT,Licata,place:osm:n67253924,100,13.937662,37.101643
+matched,Liguria,regione,IT,Liguria,place:gn:3174725,100,8.83333,44.5
+matched,Livorno,porto,IT,Livorno,place:gn:3174659,100,10.32615,43.54427
+matched,Mahón,porto,ES,Mahón,place:tgn:7007953,100,4.25,39.883333
+matched,Maiorca,porto,ES,Maiorca,place:gn:8011826,100,-8.7501,40.1687
+matched,Malta,porto,,Malta,place:gn:13264375,100,15.02906,52.60387
+matched,Martigues,porto,FR,Martigues,place:gn:2995387,100,5.05526,43.40735
+matched,Mazara del Vallo,porto,IT,Mazara del Vallo,place:wd:Q481730,100,12.58751,37.651661
+matched,Messina,porto,IT,Messina,place:osm:n67253701,100,15.554208,38.193757
+matched,Middelburg,porto,NL,Middelburg,place:osm:r1579282,100,3.610071,51.505294
+matched,Minorca,porto,ES,Minorca,place:gn:2513925,100,4.07405,39.97466
+matched,Molfetta,porto,IT,Molfetta,place:tgn:7004113,100,16.6,41.2
+matched,Monaco,porto,,Monaco,place:gn:11503731,100,-68.26987,-11.77292
+matched,Monte Argentario,porto,IT,Monte Argentario,place:wd:Q214731,100,11.116667,42.435278
+matched,Montecristo,porto,IT,Montecristo,place:gn:11153807,100,13.55811,42.41458
+matched,Montenero,porto,IT,Montenero,place:gn:8966912,100,12.22776,45.79326
+matched,Montpellier,porto,FR,Montpellier,place:tm:21234,100,3.87723,43.61092
+matched,Moraira,porto,ES,Moraira,place:gn:2513558,100,0.13484,38.68866
+matched,Motrone,porto,IT,Motrone,place:gn:3172516,100,10.47836,44.01005
+matched,Nantes,porto,FR,Nantes,place:4709747,100,-1.552379,47.21650899999995
+matched,Noli,porto,IT,Noli,place:osm:r42943,100,8.396514,44.212975
+matched,Ollioules,porto,FR,Ollioules,place:5604347,100,5.848004,43.135174
+matched,Oristano,porto,IT,Oristano,place:gn:11952251,100,8.60396,39.90175
+matched,Ostia,porto,IT,Ostia,place:wd:Q1012797,100,12.2875,41.754167
+matched,Palamós,porto,ES,Palamós,place:tm:47224,100,3.1298161,41.8505066
+matched,Palermo,porto,IT,Palermo,place:4917089,100,13.583333,37.816667
+matched,Patti,porto,IT,Patti,place:osm:n847032365,100,13.319675,38.171209
+matched,Pera,porto,TR,Pera,place:wd:Q1258837,100,28.976111,41.031944
+matched,Pesaro,porto,IT,Pesaro,place:gn:6542003,100,12.89026,43.90357
+matched,Pietrasanta,porto,IT,Pietrasanta,place:wd:Q219330,100,10.21827,43.94519
+matched,Piombino,porto,IT,Piombino,place:osm:r42248,100,10.611612,42.972831
+matched,Pisa,porto,IT,Pisa,place:tgn:7003166,100,10.716667,43.416667
+matched,Pola,porto,HR,Pola,place:pl:197448,100,13.841124,44.869567
+matched,Ponza,porto,IT,Ponza,place:osm:n648758976,100,7.065901,44.506442
+matched,Port-de-Bouc,porto,FR,Port-de-Bouc,place:gn:6447156,100,4.98861,43.405
+matched,Porto Azzurro,porto,IT,Porto Azzurro,place:wd:Q157837,100,10.4,42.766667
+matched,Portopetro,porto,ES,Portopetro,place:osm:n2532221101,100,-8.581449,42.553333
+matched,Portopetro,porto,ES,Portopetro,place:osm:n2532221101,100,-8.581449,42.553333
+matched,Portopí,porto,ES,Portopí,place:wd:Q11206033,100,2.619167,39.554167
+matched,Portovenere,porto,IT,Portovenere,place:gn:3170065,100,9.83431,44.05083
+matched,Pozzallo,porto,IT,Pozzallo,place:gn:3170009,100,9.33949,44.81032
+matched,Puglia,regione,IT,Puglia,place:osm:n1781917329,100,16.621003,40.984254
+matched,Reggio Calabria,porto,IT,Reggio Calabria,place:wd:Q8471,100,15.65,38.114439
+matched,Rimini,porto,IT,Rimini,place:ohm:n2113122249,100,12.568547,44.059267
+matched,Roma,porto,IT,Roma,place:gn:9252886,100,12.21,44.41686
+matched,Roses,porto,ES,Roses,place:gn:6534115,100,3.18161,42.26137
+matched,Rota,porto,ES,Rota,place:gn:6356945,100,-6.35153,36.65061
+matched,Rouen,porto,FR,Rouen,place:5272535,100,1.083333,49.43333299999999
+matched,Saint-Nazaire,porto,FR,Saint-Nazaire,place:gn:2977925,100,4.62413,44.19833
+matched,Salerno,porto,IT,Salerno,place:ohm:n2108604525,100,14.757226,40.681373
+matched,San Romolo,porto,IT,San Romolo,place:wd:Q2989350,100,7.726389,43.856944
+matched,Santander,porto,ES,Santander,place:gn:12196049,100,-3.82495,43.44018
+matched,Sardegna,regione,IT,Sardegna,place:gn:2523228,100,9.0,40.0
+matched,Savona,porto,IT,Savona,place:gn:3167022,100,8.47715,44.30905
+matched,Sciacca,porto,IT,Sciacca,place:gn:6542103,100,13.08805,37.50824
+matched,Sicilia,regione,IT,Sicilia,place:ohm:r2806632,100,14.061831,37.472065
+matched,Siracusa,porto,IT,Siracusa,place:gn:2523083,100,15.28664,37.07542
+matched,Siria,porto,,Siria,place:gn:10600094,100,82.31244,27.42193
+matched,Sitges,porto,ES,Sitges,place:osm:r342217,100,1.858126,41.254966
+matched,Solanto,porto,IT,Solanto,place:osm:n836243063,100,13.542848,38.076669
+matched,Southampton,porto,GB,Southampton,place:osm:r127864,100,-1.399042,50.913801
+matched,Susa,porto,,Susa,place:gn:11187991,100,29.19114,-2.36263
+matched,Sóller,porto,ES,Sóller,place:gn:2510821,100,2.71521,39.76623
+matched,Talamone,porto,IT,Talamone,place:wd:Q2073211,100,11.133333,42.555278
+matched,Taranto,porto,IT,Taranto,place:wd:Q13498,100,17.243056,40.471111
+matched,Tarragona,porto,ES,Tarragona,place:gn:6361390,100,1.26639,41.12386
+matched,Termini Imerese,porto,IT,Termini Imerese,place:wd:Q30031059,100,13.69729,37.98225
+matched,Tortosa,porto,ES,Tortosa,place:gn:3107677,100,0.5216,40.81249
+matched,Trapani,porto,IT,Trapani,place:gn:2522876,100,12.53617,38.0176
+matched,Tripoli,porto,LY,Tripoli,place:227849,100,13.18733,32.88743000000001
+matched,Tropea,porto,IT,Tropea,place:gn:2522847,100,15.89505,38.67449
+matched,Turchia,regione,,Turchia,place:osm:n3922915043,100,13.825145,43.093153
+matched,Vada,porto,IT,Vada,place:gn:3164994,100,10.45564,43.35264
+matched,Valenza,porto,ES,Valenza,place:osm:n6064817998,100,-8.810416,43.192674
+matched,Vallone,porto,IT,Vallone,place:gn:10859137,100,13.56382,45.84429
+matched,Varigotti,porto,IT,Varigotti,place:gn:3164693,100,8.39544,44.18196
+matched,Venezia,porto,IT,Venezia,place:gn:9612620,100,12.73197,43.96684
+matched,Ventimiglia,porto,IT,Ventimiglia,place:wd:Q191759,100,7.608333,43.790278
+matched,Viareggio,porto,IT,Viareggio,place:gn:3164433,100,10.2502,43.86693
+matched,Villafranca,porto,FR,Villafranca,place:7691598,100,7.3068403,43.70810309999995
+matched,Firenze,porto,IT,Firenze,place:osm:r42602,99,11.243763,43.780677
+matched,Isola d'Elba,porto,IT,Isola d'Elba,place:gn:3177426,99,10.27788,42.77663
+matched,Isola d'Elba,porto,IT,Isola d'Elba,place:gn:3177426,99,10.27788,42.77663
+matched,La Motte,porto,FR,La Motte,place:gn:12128898,99,1.2252,47.13445
+matched,Porto Columbu,porto,IT,Porto Columbu,place:osm:n11745077810,99,9.024758,39.024769
+matched,Porto Ercole,porto,IT,Porto Ercole,place:wd:Q1394400,99,11.203611,42.393889
+matched,San Vincenzo,porto,IT,San Vincenzo,place:gn:8949016,99,11.43668,44.73878
+matched,Cabo de Gata,porto,ES,Cabo de Gata,place:wd:Q6119444,98,-2.243333,36.780556
+matched,Capo Passero,porto,IT,Capo Passero,place:wd:Q1034750,98,15.137361,36.688986
+matched,Napoli,porto,IT,Napoli,place:gn:3172395,94,14.25,40.83333
+matched,Corsica,porto,FR,Corsica,place:8364213,91,9.094532839891272,42.14937669025059
+matched,Canet Lo Roig,porto,ES,Canet lo Roig,place:5544544,45,0.233333,40.55000000000002
+matched,Sapienza,porto,GR,Sapienza,place:7690571,44,21.6729733,36.76633499999997
+matched,Andraitx,porto,ES,Andraitx,place:4748744,42,2.416667,39.583332999999996
+matched,Bordeaux,porto,FR,Bordeaux,place:6135169,39,1.09928,48.67715799999996
+matched,Corneto,porto,IT,Corneto,place:5594458,39,13.433333,43.26666699999999
+override,Altoluogo,porto,TR,Ayasoluk / Selçuk (medieval port of Ephesus),,manual,27.3676,37.9495
+override,Amone,porto,ES,Mahón,place:tgn:7007953,auto-exonym,4.25,39.883333
+override,Barberia,porto,TN,Barbary Coast (Tunis as representative point),,manual,10.1815,36.8065
+override,Berre-l'Étang,porto,FR,Berre-l'Étang,place:gn:3033241,auto-exonym,5.17044,43.47809
+override,Bonifacio,porto,FR,"Bonifacio, Corsica",,manual,9.1576,41.3873
+override,Canet-en Roussillon,porto,FR,Canet-en-Roussillon,place:tm:21222,auto-exonym,3.009898,42.706091
+override,Cherchel,porto,DZ,Cherchell,place:gn:2501440,auto-exonym,2.19083,36.605
+override,Golfo di Narbona,porto,FR,Narbonne,place:gn:12319315,auto-exonym,6.78562,43.60465
+override,Hyères;Brégançon,porto,FR,Hyères,place:gn:12519480,auto-exonym,5.85746,45.5271
+override,Inghilterra,regione,,London (representative point for English voyages),place:227562,manual,-0.1257,51.5085
+override,Isola S. Margherita,porto,FR,"Île Sainte-Marguerite, Cannes",,manual,7.0508,43.5217
+override,Isola di Marsiglia,porto,FR,Frioul Islands,place:wd:Q1464953,manual,5.306647,43.275487
+override,Marsiglia pressi,porto,FR,Marseille,place:gn:2995469,auto-exonym,5.38107,43.29695
+override,Palma di Maiorca,porto,ES,Palma de Mallorca,place:tgn:7008232,auto-exonym,2.65,39.566667
+override,Porto Alessandria d'Egitto,porto,EG,Alexandria,place:ohm:n2110541901,auto-exonym,29.915669,31.200089
+override,Porto Magno,porto,IT,Magno,place:wd:Q18509707,auto-strip-porto,10.19937,45.70665
+override,Porto Pisano,porto,IT,Porto Pisano,place:wd:Q3909173,auto-exonym,10.346667,43.679722
+override,Porto Torres,porto,IT,Torres,place:wd:Q18497102,auto-strip-porto,12.36142,46.16747
+override,Porto Venere,porto,IT,Venere,place:wd:Q18427108,auto-strip-porto,13.64549,41.99101
+override,Portofino,porto,IT,Portofino,place:wd:Q33707987,auto-exonym,9.20937,44.30374
+override,Romania,porto,,Medieval Romania (Byzantine/Aegean Greek territories),,manual,23.7275,37.9838
