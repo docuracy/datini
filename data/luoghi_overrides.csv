@@ -17,6 +17,8 @@ Inghilterra,place:227562,London (representative point for English voyages),-0.12
 Isola S. Margherita,,"Île Sainte-Marguerite, Cannes",7.0508,43.5217,manual,WHG returns the island with Country=IT despite being in FR; manually set to Cannes coords.
 Isola di Marsiglia,place:wd:Q1464953,Frioul Islands,5.306647,43.275487,manual,Frioul Islands off Marseille. WHG default match was a Frioul POI in Lyon (osm:n2686481302).
 Levante,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Maiorca,place:tgn:7008232,Palma de Mallorca (Balearic Islands),2.65,39.566667,manual,"WHG fuzzy-matched to a small Portuguese town also called Maiorca (40.17°N, -8.75°W) — the result is tagged ""Country: ES, PT"" so the ES country filter accepts it. Pinning to Palma de Mallorca to match the related Palma di Maiorca entry; voyages referring simply to ""Maiorca"" all mean the Balearic island."
+Maiorca pressi,place:tgn:7008232,near Palma de Mallorca,2.65,39.566667,manual,"Variation probe matched a Moroccan place spelled similarly (Çokhra Al Mbwirka, near Casablanca). ""Maiorca pressi"" = approaching/near Mallorca; pinning to Palma alongside Maiorca."
 Mare del Nord,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Mari di Bretagna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Mari di Cartagena,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.

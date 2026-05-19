@@ -102,7 +102,6 @@ best_guess,La Coruña,porto,ES,A Coruña Province,place:wd:Q82119,100,-8.4,43.37
 best_guess,Largo di Civitavecchia,porto,IT,Bosco San Cristoforo,place:osm:n6054429475,100,15.05008,41.536195
 best_guess,Lisbona,porto,PT,Lisboa,place:5277043,100,-9.133333,39.00000000000004
 best_guess,Londra,porto,GB,London,place:227562,100,-0.12574,51.50853000000002
-best_guess,Maiorca pressi,porto,ES,Çokhra Al Mbwirka,place:gn:11434652,100,-7.44018,32.97246
 best_guess,Malaga,porto,ES,Málaga,place:2487309,100,-4.42034,36.720159999999986
 best_guess,Malaga pressi,porto,ES,Plaza Mayor de Almagro,place:wd:Q6079676,100,-3.711944,38.888611
 best_guess,Manica (canale della),porto,,McKenzie Inlet,place:tgn:2502080,100,-132.35,55.35
@@ -214,7 +213,6 @@ matched,Licata,porto,IT,Licata,place:osm:n67253924,100,13.937662,37.101643
 matched,Liguria,regione,IT,Liguria,place:gn:3174725,100,8.83333,44.5
 matched,Livorno,porto,IT,Livorno,place:gn:3174659,100,10.32615,43.54427
 matched,Mahón,porto,ES,Mahón,place:tgn:7007953,100,4.25,39.883333
-matched,Maiorca,porto,ES,Maiorca,place:gn:8011826,100,-8.7501,40.1687
 matched,Malta,porto,,Malta,place:gn:13264375,100,15.02906,52.60387
 matched,Martigues,porto,FR,Martigues,place:gn:2995387,100,5.05526,43.40735
 matched,Mazara del Vallo,porto,IT,Mazara del Vallo,place:wd:Q481730,100,12.58751,37.651661
@@ -319,6 +317,8 @@ override,Hyères;Brégançon,porto,FR,Hyères,place:gn:12519480,auto-exonym,5.85
 override,Inghilterra,regione,,London (representative point for English voyages),place:227562,manual,-0.1257,51.5085
 override,Isola S. Margherita,porto,FR,"Île Sainte-Marguerite, Cannes",,manual,7.0508,43.5217
 override,Isola di Marsiglia,porto,FR,Frioul Islands,place:wd:Q1464953,manual,5.306647,43.275487
+override,Maiorca,porto,ES,Palma de Mallorca (Balearic Islands),place:tgn:7008232,manual,2.65,39.566667
+override,Maiorca pressi,porto,ES,near Palma de Mallorca,place:tgn:7008232,manual,2.65,39.566667
 override,Marsiglia pressi,porto,FR,Marseille,place:gn:2995469,auto-exonym,5.38107,43.29695
 override,Palma di Maiorca,porto,ES,Palma de Mallorca,place:tgn:7008232,auto-exonym,2.65,39.566667
 override,Porto Alessandria d'Egitto,porto,EG,Alexandria,place:ohm:n2110541901,auto-exonym,29.915669,31.200089
