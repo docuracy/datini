@@ -50,7 +50,6 @@ skip,n.s.,porto,,,,,,
 best_guess,Acri,porto,IL,Acre,place:8364219,100,35.08,32.92000000000003
 best_guess,Aigues Mortes,porto,FR,Aigues-Mortes,place:5894593,100,4.195468,43.56952099999998
 best_guess,Al largo della Gorgona,porto,IT,Gargallo,place:wd:Q22450,100,8.409192,45.727571
-best_guess,Alcudia,porto,,l'Alcúdia,place:osm:n1243398548,100,-0.407615,38.86044
 best_guess,Alemagna,regione,,Lemagna,place:osm:n6271870283,100,13.377464,46.271749
 best_guess,Alessandria d'Egitto,porto,EG,Capture of Alexandria,place:wd:Q3403790,100,29.919167,31.198056
 best_guess,Algeri,porto,DZ,Algiers,place:227685,100,3.08746,36.73225
@@ -89,7 +88,6 @@ best_guess,Feodosia,porto,RU,Fedoseyevskoye,place:gn:563017,100,47.6227,58.1473
 best_guess,Fiandra,regione,BE,Flanders,place:wd:Q234,100,4.5,51.0
 best_guess,Foce d'Arno,porto,IT,Q126917007,place:wd:Q126917007,100,10.980083,45.435333
 best_guess,Fort de Brégançon,porto,FR,Fort Brégançon,place:gn:3030413,100,6.32215,43.09261
-best_guess,Galizia,regione,ES,Galicia,place:tgn:7002786,100,-8.0,42.75
 best_guess,Galles,porto,GB,Wales,place:wd:Q25,100,-3.633333,52.35
 best_guess,Giaffa,porto,IL,יפו,place:osm:n278471086,100,34.750991,32.044339
 best_guess,Gibilterra,porto,GB,Gibraltar Point,place:tgn:1011919,100,0.333333,53.1
@@ -132,7 +130,6 @@ best_guess,Ripa di Roma,porto,IT,Ripa di Ferramoto,place:osm:n9562059826,100,9.2
 best_guess,Riviera ligure,porto,IT,Italian Riviera,place:wd:Q11124206,100,8.782222,44.435917
 best_guess,Rodi,porto,GR,Rhodes,place:tgn:7011265,100,28.2225,36.440833
 best_guess,Romania;Levante,porto,,Rumah Labang,place:gn:1747810,100,113.2,3.23333
-best_guess,San Feliu de Guíxois,porto,ES,Góis,place:wd:Q425410,100,-8.116667,40.15
 best_guess,Scozia,porto,GB,Alba / Scotland,place:ohm:r2874396,100,-4.811333,57.744405
 best_guess,Siviglia,porto,ES,Seville,place:tgn:7008676,100,-5.986944,37.377222
 best_guess,Southampton pressi,porto,GB,City of Southampton,place:wd:Q21683230,100,-1.38333,50.91667
@@ -146,7 +143,6 @@ best_guess,Tenedo,porto,TR,Bozcaada,place:osm:n7446867755,100,26.070192,39.83473
 best_guess,Tolone,porto,FR,col du Rothenbach,place:gn:12156572,100,6.97999,48.00542
 best_guess,Tunisi,porto,TN,Tunis,place:2487579,100,10.16579,36.818969999999986
 best_guess,Tènés,porto,DZ,Ténès,place:wd:Q860307,100,1.306389,36.508056
-best_guess,Valenza pressi,porto,ES,Pasaje Valvanera,place:wd:Q97642646,100,-5.98898,37.399959
 best_guess,Zelanda,regione,NL,Zeeland,place:wd:Q705,100,3.75,51.566667
 matched,Agde,porto,FR,Agde,place:4814866,100,3.47534,43.31099099999998
 matched,Agrigento,porto,IT,Agrigento,place:wd:Q13678,100,13.575,37.3125
@@ -199,7 +195,6 @@ matched,Genova,porto,IT,Genova,place:ohm:n2087565388,100,8.933024,44.406834
 matched,Gorgona,porto,IT,Gorgona,place:wd:Q19347,100,9.9,43.433333
 matched,Harfleur,porto,FR,Harfleur,place:5668100,100,0.192722,49.511248000000016
 matched,Hyères,porto,FR,Hyères,place:gn:12519480,100,5.85746,45.5271
-matched,Ibiza,porto,ES,Ibiza,place:gn:11549939,100,-3.67434,40.41888
 matched,Ischia,porto,IT,Ischia,place:wd:Q30026361,100,13.94862,40.73793
 matched,Istanbul,porto,TR,Istanbul,place:227537,100,28.949660000000005,41.013840000000016
 matched,Jávea,porto,ES,Jávea,place:tgn:1062095,100,0.166667,38.783333
@@ -281,7 +276,6 @@ matched,Tripoli,porto,LY,Tripoli,place:227849,100,13.18733,32.88743000000001
 matched,Tropea,porto,IT,Tropea,place:gn:2522847,100,15.89505,38.67449
 matched,Turchia,regione,,Turchia,place:osm:n3922915043,100,13.825145,43.093153
 matched,Vada,porto,IT,Vada,place:gn:3164994,100,10.45564,43.35264
-matched,Valenza,porto,ES,Valenza,place:osm:n6064817998,100,-8.810416,43.192674
 matched,Vallone,porto,IT,Vallone,place:gn:10859137,100,13.56382,45.84429
 matched,Varigotti,porto,IT,Varigotti,place:gn:3164693,100,8.39544,44.18196
 matched,Venezia,porto,IT,Venezia,place:gn:9612620,100,12.73197,43.96684
@@ -304,6 +298,7 @@ matched,Sapienza,porto,GR,Sapienza,place:7690571,44,21.6729733,36.76633499999997
 matched,Andraitx,porto,ES,Andraitx,place:4748744,42,2.416667,39.583332999999996
 matched,Bordeaux,porto,FR,Bordeaux,place:6135169,39,1.09928,48.67715799999996
 matched,Corneto,porto,IT,Corneto,place:5594458,39,13.433333,43.26666699999999
+override,Alcudia,porto,,Morocco (Atlantic coast — approximate),,manual,-6.15,35.19
 override,Altoluogo,porto,TR,Ayasoluk / Selçuk (medieval port of Ephesus),,manual,27.3676,37.9495
 override,Amone,porto,ES,Mahón,place:tgn:7007953,auto-exonym,4.25,39.883333
 override,Barberia,porto,TN,Barbary Coast (Tunis as representative point),,manual,10.1815,36.8065
@@ -312,8 +307,10 @@ override,Bonifacio,porto,FR,"Bonifacio, Corsica",,manual,9.1576,41.3873
 override,Canet-en Roussillon,porto,FR,Canet-en-Roussillon,place:tm:21222,auto-exonym,3.009898,42.706091
 override,Cherchel,porto,DZ,Cherchell,place:gn:2501440,auto-exonym,2.19083,36.605
 override,Cipro,porto,,Cyprus (Nicosia as central reference),place:ohm:r2800989,manual,33.3823,35.1856
+override,Galizia,regione,ES,Galicia (Atlantic coast reference point),,manual,-8.9,42.6
 override,Golfo di Narbona,porto,FR,Narbonne,place:gn:12319315,auto-exonym,6.78562,43.60465
 override,Hyères;Brégançon,porto,FR,Hyères,place:gn:12519480,auto-exonym,5.85746,45.5271
+override,Ibiza,porto,ES,Ibiza (Eivissa),,manual,1.4206,38.9067
 override,Inghilterra,regione,,London (representative point for English voyages),place:227562,manual,-0.1257,51.5085
 override,Isola S. Margherita,porto,FR,"Île Sainte-Marguerite, Cannes",,manual,7.0508,43.5217
 override,Isola di Marsiglia,porto,FR,Frioul Islands,place:wd:Q1464953,manual,5.306647,43.275487
@@ -328,3 +325,6 @@ override,Porto Torres,porto,IT,Torres,place:wd:Q18497102,auto-strip-porto,12.361
 override,Porto Venere,porto,IT,Venere,place:wd:Q18427108,auto-strip-porto,13.64549,41.99101
 override,Portofino,porto,IT,Portofino,place:wd:Q33707987,auto-exonym,9.20937,44.30374
 override,Romania,porto,,Medieval Romania (Byzantine/Aegean Greek territories),,manual,23.7275,37.9838
+override,San Feliu de Guíxois,porto,ES,Sant Feliu de Guíxols,,manual,3.0125674,41.7859253
+override,Valenza,porto,ES,Valencia,,manual,-0.3762881,39.4699075
+override,Valenza pressi,porto,ES,near Valencia,,manual,-0.32,39.45

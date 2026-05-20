@@ -1,4 +1,5 @@
 name,whg_id,whg_name,lng,lat,source,notes
+Alcudia,,Morocco (Atlantic coast — approximate),-6.15,35.19,manual,"APPROXIMATE. Source region tag is Marocco but the row carries no ISO code, so WHG fuzzy-matched l'Alcúdia near Valencia, Spain (place:osm:n1243398548) — wrong country. No 14th–15th c. Moroccan port named ""Alcudia"" could be confirmed (modern ""Alcudia Smir"" near Fnideq is a recent resort development, not a historical place). Pinned to a representative northern-Moroccan Atlantic coast point near the other Moroccan ports (Arzilla ~35.47/-6.03, Azemmour ~33.29/-8.34); revise if the true port is identified."
 Altoluogo,,Ayasoluk / Selçuk (medieval port of Ephesus),27.3676,37.9495,manual,"Medieval Italian Altoluogo (altum locum) = Ayasoluk/Selçuk, the silted-up successor port adjacent to ancient Ephesus. WHG match was Tavuklu (eastern Turkey) which is unrelated."
 Amone,place:tgn:7007953,Mahón,4.25,39.883333,auto-exonym,variation: Mahón
 Barberia,,Barbary Coast (Tunis as representative point),10.1815,36.8065,manual,Source PDF country tail is Tunisia. Tunis is the canonical Barbary port for that country tag; the earlier interior Algeria/Sahara override was wrong.
@@ -10,9 +11,11 @@ Cipro,place:ohm:r2800989,Cyprus (Nicosia as central reference),33.3823,35.1856,m
 Costa di Catalogna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Costiera di Barcellona,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Costiera di Catalogna,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
+Galizia,,Galicia (Atlantic coast reference point),-8.9,42.6,manual,"Region marker. WHG matched the Galicia polygon (place:tgn:7002786) whose centroid falls inland in interior Galicia. Galizia voyages are coastal/Atlantic, so the marker is pinned to a representative point on the Rías Baixas coast rather than the land centroid."
 Golfo del Leone,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
 Golfo di Narbona,place:gn:12319315,Narbonne,6.78562,43.60465,auto-exonym,variation: Narbonne
 Hyères;Brégançon,place:gn:12519480,Hyères,5.85746,45.5271,auto-exonym,variation: Hyères
+Ibiza,,Ibiza (Eivissa),1.4206,38.9067,manual,"WHG fuzzy-matched a GeoNames record (place:gn:11549939) that resolves to Madrid (40.42°N, -3.67°W). Ibiza is the Balearic island/town in the western Mediterranean; pinned to Eivissa town."
 Inghilterra,place:227562,London (representative point for English voyages),-0.1257,51.5085,manual,"WHG matched the England polygon (centroid in central rural England). All 23 voyages tagged Inghilterra would have docked at an English port — London being the canonical destination, and the only separately-listed English port (Londra) gets zero voyages in the source."
 Isola S. Margherita,,"Île Sainte-Marguerite, Cannes",7.0508,43.5217,manual,WHG returns the island with Country=IT despite being in FR; manually set to Cannes coords.
 Isola di Marsiglia,place:wd:Q1464953,Frioul Islands,5.306647,43.275487,manual,Frioul Islands off Marseille. WHG default match was a Frioul POI in Lyon (osm:n2686481302).
@@ -46,4 +49,7 @@ Porto Torres,place:wd:Q18497102,Torres,12.36142,46.16747,auto-strip-porto,variat
 Porto Venere,place:wd:Q18427108,Venere,13.64549,41.99101,auto-strip-porto,variation: Venere
 Portofino,place:wd:Q33707987,Portofino,9.20937,44.30374,auto-exonym,variation: Portofino
 Romania,,Medieval Romania (Byzantine/Aegean Greek territories),23.7275,37.9838,manual,In medieval Italian merchant usage Romania = the Latin/Byzantine Empire territories (mostly modern Greece and the Aegean). WHG matched the modern country (Transylvania). Athens is used as a representative point for the source PDF country tag Grecia.
+San Feliu de Guíxois,,Sant Feliu de Guíxols,3.0125674,41.7859253,manual,"WHG matched ""Góis"" (place:wd:Q425410) in central Portugal — wrong country. The source region tag is Catalogna-Spagna; this is Sant Feliu de Guíxols on the Costa Brava (Catalonia, Spain)."
+Valenza,,Valencia,-0.3762881,39.4699075,manual,"WHG matched an OSM node literally named ""Valenza"" (place:osm:n6064817998) on the Galician coast in NW Spain. The source region tag is Comunità Valenciana-Spagna; this is Valencia on the Mediterranean. Matches the Datini Letters gazetteer point for Valencia."
+Valenza pressi,,near Valencia,-0.32,39.45,manual,"WHG matched ""Pasaje Valvanera"" (place:wd:Q97642646) near Seville. ""Valenza pressi"" = approaching/near Valencia; pinned just off Valencia alongside the Valenza entry."
 n.s.,,,,,auto-skip-sea-area,Sea zone or abstract direction — no point geocoding.
